@@ -1,17 +1,30 @@
 <template>
   <Modal
     :showModal="showModal"
-    title="Подтверждение"
-    @close="$emit('close')"
+    :title="level == 0 ? 'Изменение задачи' : 'Добавление вида ресурса'"
+    @close="onClose"
     @open="onOpen"
   >
-    <template v-slot>
+    <template v-slot v-if="level == 1">
+      <div class="mb-3">
+        <label for="nameInput" class="form-label">Название</label>
+        <input
+          v-model="resourceKindName"
+          type="text"
+          class="form-control"
+          id="nameInput"
+        />
+      </div>
+    </template>
+    <template v-slot v-if="level == 0">
       <div class="mb-3">
         <label for="nameInput" class="form-label">Название</label>
         <input v-model="name" type="text" class="form-control" id="nameInput" />
       </div>
       <div class="mb-3">
-        <label for="durationInput" class="form-label">Продолжительность</label>
+        <div>
+          <label class="form-label">Продолжительность</label>
+        </div>
         <input
           v-model="duration"
           type="number"
@@ -20,46 +33,79 @@
         />
       </div>
       <div class="mb-3">
-        <label for="durationInput" class="form-label">Сила</label>
-        <input
-          v-model="power"
-          type="number"
-          class="form-control"
-          id="durationInput"
-        />
+        <div>Ресурсы</div>
+        <div
+          class="d-flex align-items-center mt-2"
+          v-for="(resource, i) in resources"
+        >
+          <div class="input-group">
+            <select v-model="resources[i].resourceKindId" class="form-select">
+              <option
+                :value="resourceKind.id"
+                :selected="neededTasksIds.includes(resourceKind.id)"
+                v-for="resourceKind in getAvailableResourceKinds(resource)"
+              >
+                {{ resourceKind.id }} {{ resourceKind.name }}
+              </option>
+            </select>
+            <button class="btn btn-primary" @click="level = 1">
+              <i class="bi bi-plus" style="cursor: pointer"></i>
+            </button>
+          </div>
+          <input
+            v-model="resources[i].count"
+            type="number"
+            class="form-control ms-2"
+            style="width: 60px"
+          />
+          <i
+            @click="
+              resources = resources.filter(
+                (x) => x.resourceKindId != resource.resourceKindId
+              )
+            "
+            class="bi-trash ms-2"
+            style="cursor: pointer"
+          ></i>
+        </div>
+        <a
+          class="link-opacity-100 link-underline link-underline-opacity-0 c-pointer"
+          @click="addNewResource()"
+          >+ добавить</a
+        >
       </div>
       <div class="mb-3">
-        <label class="form-label" for="neededJobsInput">Требуемые работы</label>
-        <ul class="list-group overflow-auto" style="max-height: 300px">
-          <li class="list-group-item" v-for="task in tasks.filter(x => x.id != selectedTask.id)">
-            <label class="form-check-label"
-              ><input
-                class="form-check-input me-1"
-                type="checkbox"
-                :checked="neededTasksIds.includes(task.id)"
-                @click="onCheckClick(task.id)"
-              />({{ task.id }}) {{ task.name }}
-            </label>
-          </li>
-        </ul>
-        <!-- <select
-          v-model="neededTasksIds"
-          multiple
-          class="form-select"
-          id="neededJobsInput"
+        <div>Требуемые работы</div>
+        <div
+          class="d-flex align-items-center mt-2"
+          v-for="(taskId, i) in neededTasksIds"
         >
-          <option
-            :value="task.id"
-            :selected="neededTasksIds.includes(task.id)"
-            v-for="task in tasks"
-          >
-            {{ task.id }} {{ task.name }}
-          </option>
-        </select> -->
+          <select v-model="neededTasksIds[i]" class="form-select">
+            <option
+              :value="task.id"
+              :selected="neededTasksIds.includes(task.id)"
+              v-for="task in tasks.filter(
+                (x) => x.id == taskId || neededTasksIds.includes(x.id) == false
+              )"
+            >
+              {{ task.id }} {{ task.name }}
+            </option>
+          </select>
+          <i
+            @click="neededTasksIds = neededTasksIds.filter((x) => x != taskId)"
+            class="bi-trash ms-2"
+            style="cursor: pointer"
+          ></i>
+        </div>
+        <a
+          class="link-opacity-100 link-underline link-underline-opacity-0 c-pointer"
+          @click="addNewNeededTask()"
+          >+ добавить</a
+        >
       </div>
     </template>
     <template v-slot:footer>
-      <button class="btn btn-primary" @click="$emit('close')">Отмена</button>
+      <button class="btn btn-primary" @click="onClose">Отмена</button>
       <button :disabled="!canSave" class="btn btn-primary" @click="save">
         <span
           v-show="isLoadingSubmitButton"
@@ -76,16 +122,19 @@
 <script lang="ts">
 import { defineComponent } from "vue";
 import Modal from "../components/Modal/Modal.vue";
-import Task from "../store/dto/task";
+import Task, { Resource } from "../store/dto/task";
 import Storage from "../store/index";
+import ResourceKind from "../store/dto/resource-kind";
 
 interface Data {
   isLoadingSubmitButton: boolean;
   storage: Storage;
   name: null | string;
+  resourceKindName: null | string;
   duration: null | number;
-  power: null | number;
-  neededTasksIds: number[];
+  neededTasksIds: (number | null)[];
+  resources: Resource[];
+  level: number;
 }
 
 export default defineComponent({
@@ -104,8 +153,11 @@ export default defineComponent({
       storage: Storage.getInstance(),
       name: null,
       duration: null,
-      power: null,
       neededTasksIds: [],
+      resources: [],
+      showAddResourceKindModal: false,
+      resourceKindName: null,
+      level: 0,
     } as Data;
   },
   watch: {
@@ -113,7 +165,16 @@ export default defineComponent({
   },
   computed: {
     canSave(): boolean {
-      return !!this.name && this.duration != null && this.power != null;
+      return (
+        (this.level == 1 && !!this.resourceKindName) ||
+        (this.level == 0 &&
+          !!this.name &&
+          this.duration != null &&
+          this.resources.every(
+            (x) => x.resourceKindId != null && x.count > 0
+          ) &&
+          this.neededTasksIds.every((x) => x != null))
+      );
     },
     tasks(): Task[] {
       return this.storage.tasks;
@@ -121,34 +182,69 @@ export default defineComponent({
     selectedTask(): Task {
       return this.storage.selectedTask;
     },
+    resourceKinds(): ResourceKind[] {
+      return this.storage.resourceKinds;
+    },
   },
   methods: {
+    getAvailableResourceKinds(resource: Resource) {
+      return this.resourceKinds.filter(
+        (x) =>
+          x.id == resource.resourceKindId ||
+          this.resources.some((y) => y.resourceKindId == x.id) == false
+      );
+    },
+    addNewResource() {
+      this.resources.push({ resourceKindId: null, count: 0 });
+    },
+    addNewNeededTask() {
+      this.neededTasksIds.push(null);
+    },
     onCheckClick(taskId: number) {
       if (this.neededTasksIds.includes(taskId)) {
-        this.neededTasksIds = this.neededTasksIds.filter(x => x != taskId);
-      }
-      else {
-        this.neededTasksIds.push(taskId)
+        this.neededTasksIds = this.neededTasksIds.filter((x) => x != taskId);
+      } else {
+        this.neededTasksIds.push(taskId);
       }
     },
     onOpen(): void {
       this.isLoadingSubmitButton = false;
       this.name = this.selectedTask.name;
       this.duration = this.selectedTask.duration;
-      this.power = this.selectedTask.power;
       this.neededTasksIds = this.selectedTask.needTasksIds;
+      this.resources = this.selectedTask.resources ?? [];
+      this.resourceKindName = null;
+    },
+    onClose(): void {
+      console.log(this.level);
+      this.resourceKindName = null;
+      if (this.level == 0) this.$emit("close");
+      else this.level = 0;
     },
     save(): void {
       this.isLoadingSubmitButton = true;
-      this.storage.updateTask({
-        id: this.selectedTask.id,
-        name: this.name!,
-        duration: this.duration!,
-        power: this.power!,
-        needTasksIds: this.neededTasksIds,
-      });
-      this.isLoadingSubmitButton = false;
-      this.$emit('close')
+      if (this.level == 0) {
+        this.storage.updateTask({
+          id: this.selectedTask.id,
+          name: this.name!,
+          duration: this.duration!,
+          needTasksIds: this.neededTasksIds.map((x) => x!),
+          resources: this.resources,
+        });
+        this.isLoadingSubmitButton = false;
+        this.$emit("close");
+      } else {
+        var id = 0;
+        if (this.resourceKinds.length)
+          id = Math.max(...this.resourceKinds.map((x) => x.id)) + 1;
+
+        this.storage.addResourceKind({
+          id: id,
+          name: this.resourceKindName!,
+        });
+        this.isLoadingSubmitButton = false;
+        this.level = 0;
+      }
     },
   },
   mounted() {},

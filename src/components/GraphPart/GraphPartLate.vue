@@ -4,6 +4,7 @@
         v-if="taskInFound && getDuration(taskInFound) < (b-a)"
         :a="a"
         :b="b - getDuration(taskInFound)"
+          :resourceKindId="resourceKindId"
         :processedTaskIds="processedTaskIds"
       />
       <div class="d-flex align-items-end flex-column">
@@ -11,9 +12,10 @@
           v-if="taskInFound"
           :a="b - getDuration(taskInFound)"
           :b="b"
+          :resourceKindId="resourceKindId"
           :processedTaskIds="newProcessedTaskIds"
         />
-        <div :title="taskInFound.name" class="d-flex align-items-center justify-content-center c-pointer" v-if="taskInFound" :style="`height: ${taskInFound.power * 15}px; width: ${getDuration(taskInFound) * 20}px; border: 1px solid black;`">{{ taskInFound.id }}</div>
+        <div :title="taskInFound.name" class="d-flex align-items-center justify-content-center c-pointer" v-if="taskInFound && getPower(taskInFound)" :style="`height: ${getPower(taskInFound) * 15}px; width: ${getDuration(taskInFound) * 20}px; border: 1px solid black;`">{{ taskInFound.id }}</div>
       </div>
     </div>
 </template>
@@ -34,6 +36,10 @@ export default defineComponent({
       type: Number,
       required: true
     },
+    resourceKindId: {
+      type: Number,
+      default: null
+    },
     processedTaskIds: {
       type: Object as PropType<number[]>,
       required: true
@@ -45,6 +51,11 @@ export default defineComponent({
     };
   },
   methods: {
+    getPower(task: CalculatedTask) {
+      if (this.resourceKindId != null)
+        return task.resources.find(x => x.resourceKindId == this.resourceKindId)?.count ?? 0
+      return task.power
+    },
     getDuration(task: CalculatedTask) {
       if (task.lateStart! >= this.b || task.lateEnd! < this.a)
         return 0

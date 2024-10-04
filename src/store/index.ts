@@ -1,3 +1,4 @@
+import ResourceKind from "./dto/resource-kind"
 import Task, { CalculatedTask } from "./dto/task"
 import storage from "./store"
 
@@ -24,6 +25,10 @@ export default class Storage {
     return storage.state.selectedTask
   }
 
+  get resourceKinds(): ResourceKind[] {
+    return storage.state.resourceKinds
+  }
+
   addTask(task: Task) {
     storage.dispatch('addTask', task)
   }
@@ -34,6 +39,10 @@ export default class Storage {
   
   updateTask(task: Task) {
     storage.dispatch('updateTask', task)
+  }
+
+  addResourceKind(resourceKind: ResourceKind) {
+    storage.dispatch('addResourceKind', resourceKind)
   }
 
   selectTask(task: Task) {

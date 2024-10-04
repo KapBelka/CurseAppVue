@@ -5,14 +5,16 @@
           v-if="taskInFound"
           :a="a"
           :b="a + getDuration(taskInFound)"
+          :resourceKindId="resourceKindId"
           :processedTaskIds="newProcessedTaskIds"
         />
-        <div :title="taskInFound.name" class="d-flex align-items-center justify-content-center c-pointer" v-if="taskInFound" :style="`height: ${taskInFound.power * 15}px; width: ${getDuration(taskInFound) * 20}px; border: 1px solid black;`">{{ taskInFound.id }}</div>
+        <div :title="taskInFound.name" class="d-flex align-items-center justify-content-center c-pointer" v-if="taskInFound && getPower(taskInFound)" :style="`height: ${getPower(taskInFound) * 15}px; width: ${getDuration(taskInFound) * 20}px; border: 1px solid black;`">{{ taskInFound.id }}</div>
       </div>
       <GraphPart 
         v-if="taskInFound && getDuration(taskInFound) < (b-a)"
         :a="a + getDuration(taskInFound)"
         :b="b"
+          :resourceKindId="resourceKindId"
         :processedTaskIds="processedTaskIds"
       />
     </div>
@@ -34,6 +36,10 @@ export default defineComponent({
       type: Number,
       required: true
     },
+    resourceKindId: {
+      type: Number,
+      default: null
+    },
     processedTaskIds: {
       type: Object as PropType<number[]>,
       required: true
@@ -45,6 +51,11 @@ export default defineComponent({
     };
   },
   methods: {
+    getPower(task: CalculatedTask) {
+      if (this.resourceKindId != null)
+        return task.resources.find(x => x.resourceKindId == this.resourceKindId)?.count ?? 0
+      return task.power
+    },
     getDuration(task: CalculatedTask) {
       if (task.earlyStart! > this.b || task.earlyEnd! < this.a)
         return 0
