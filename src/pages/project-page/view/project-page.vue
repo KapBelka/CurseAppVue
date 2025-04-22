@@ -114,7 +114,7 @@
           "
         >
           <div class="px-4 py-2" style="color: #fff">
-            График Ранний/Левосторонний
+            График Ранний
           </div>
           <div
             class="px-3"
@@ -147,7 +147,7 @@
           "
         >
           <div class="px-4 py-2" style="color: #fff">
-            График Поздний/Правосторонний
+            График Поздний
           </div>
           <div
             class="px-3"
@@ -179,7 +179,7 @@
             flex: 1;
           "
         >
-          <div class="px-4 py-2" style="color: #fff">График Равномерный</div>
+          <div class="px-4 py-2" style="color: #fff">График Скорректированный</div>
           <div
             class="px-3"
             style="
