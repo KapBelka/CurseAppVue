@@ -284,6 +284,14 @@ export default defineComponent({
       }
 
       if (event.type == 'mouseup' || event.type == 'mouseleave') {
+        
+        if (this.taskForMove)
+          this.storage.updateTaskOptimizedTime({ id: this.taskForMove.id, start: this.taskForMove.optimizedStart!, end: this.taskForMove.optimizedEnd! })
+
+        this.taskForMove = null
+
+        this.lastMouseX = event.offsetX
+
         var example3 = document.getElementById(
           "example3"
         ) as HTMLCanvasElement;
@@ -293,13 +301,6 @@ export default defineComponent({
           example3,
           this.normalRects
         );
-        
-        if (this.taskForMove)
-          this.storage.updateTaskOptimizedTime({ id: this.taskForMove.id, start: this.taskForMove.optimizedStart!, end: this.taskForMove.optimizedEnd! })
-
-        this.taskForMove = null
-
-        this.lastMouseX = event.offsetX
       }
 
       if (event.type == 'mousemove') {
