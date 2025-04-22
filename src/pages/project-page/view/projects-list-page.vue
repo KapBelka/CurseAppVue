@@ -68,7 +68,7 @@ import storage from "../store/index";
 import PageContainer from "../../../components/pageContainer/page-container.vue";
 import ProjectListItemDto from "../../../services/projects/dtos/project-list-item-dto";
 import CreateProjectModal from "./modals/CreateProjectModal.vue";
-import ConfirmModal from "../../../components/modal/confirm-modal.vue";
+import ConfirmModal from "./../../../components/modal/confirm-modal.vue";
 
 interface Data {
   storage: storage;
