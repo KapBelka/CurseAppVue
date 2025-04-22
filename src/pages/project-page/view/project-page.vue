@@ -76,7 +76,7 @@
             </div>
             <div style="width: 600px">{{ task.name }}</div>
             <div style="width: 60px">{{ task.duration }}</div>
-            <div style="width: 130px">{{ tasks.filter(x => task.needProjectTasksIds.includes(x.id)).map(x => x.name) }}</div>
+            <div style="width: 130px">{{ tasks.filter(x => task.needProjectTasksIds.includes(x.id)).map(x => x.name).join("; ") }}</div>
             <div style="width: 80px">
               {{
                 getCalculatedTask(task).resources.reduce(
