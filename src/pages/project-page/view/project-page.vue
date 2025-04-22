@@ -294,7 +294,8 @@ export default defineComponent({
           this.normalRects
         );
         
-        this.storage.updateTaskOptimizedTime({ id: this.taskForMove!.id, start: this.taskForMove!.optimizedStart!, end: this.taskForMove!.optimizedEnd! })
+        if (this.taskForMove)
+          this.storage.updateTaskOptimizedTime({ id: this.taskForMove.id, start: this.taskForMove.optimizedStart!, end: this.taskForMove.optimizedEnd! })
 
         this.taskForMove = null
 
