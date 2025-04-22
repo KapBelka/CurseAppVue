@@ -1,9 +1,24 @@
 import { createApp } from 'vue'
-//import './style.css'
 import App from './App.vue'
-//import store from './store/store'
 
+import "./assets/_custom-bootstrap.scss"
+import "bootstrap"
+
+import { createWebHistory, createRouter } from 'vue-router'
+import LoginPage from './pages/login-page/login-page.vue'
+import ProjectPage from './pages/project-page/view/project-page.vue'
+import ProjectsListPage from './pages/project-page/view/projects-list-page.vue'
+
+const routes = [
+  { path: '/login', component: LoginPage },
+  { path: '/', component: ProjectsListPage },
+  { path: '/project/:id', component: ProjectPage },
+]
+
+export const router = createRouter({
+  history: createWebHistory(),
+  routes,
+})
 
 const app = createApp(App)
-app.mount('#app')
-//app.use(store)
+app.use(router).mount('#app')

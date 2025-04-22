@@ -1,0 +1,46 @@
+import Client from "../../api/client"
+import AddResourceKindDto from "./dtos/add-resource-kind-dto";
+import AddTaskDto from "./dtos/add-task-dto";
+import CreateProjectDto from "./dtos/create-project-dto";
+import { ProjectDto } from "./dtos/project-dto";
+import ProjectListItemDto from "./dtos/project-list-item-dto";
+import UpdateTaskDto from "./dtos/update-task-dto";
+import UpdateTaskOptimizedTimeDto from "./dtos/update-task-optimized-time-dto";
+
+export default class ProjectService {
+    public async GetList(): Promise<ProjectListItemDto[] | Error> {
+        return await Client.Get("Projects")
+    }
+
+    public async Get(id: string): Promise<ProjectDto | Error> {
+        return await Client.Get(`Projects/${id}`)
+    }
+
+    public async CreateProject(dto: CreateProjectDto): Promise<string | Error> {
+        return await Client.Post("Projects/create", dto)
+    }
+
+    public async DeleteProject(projectId: string): Promise<string | Error> {
+        return await Client.Post("Projects/delete/" + projectId)
+    }
+
+    public async AddTask(projectId: string, dto: AddTaskDto): Promise<string | Error> {
+        return await Client.Post(`Projects/${projectId}/add-task`, dto)
+    }
+
+    public async UpdateTask(projectId: string, taskId: string, dto: UpdateTaskDto): Promise<void | Error> {
+        return await Client.Post(`Projects/${projectId}/update-task/${taskId}`, dto)
+    }
+
+    public async UpdateTaskOptimizedTime(projectId: string, taskId: string, dto: UpdateTaskOptimizedTimeDto): Promise<void | Error> {
+        return await Client.Post(`Projects/${projectId}/set-task-optimized-time/${taskId}`, dto)
+    }
+
+    public async AddResourceKind(projectId: string, dto: AddResourceKindDto): Promise<string | Error> {
+        return await Client.Post(`Projects/${projectId}/add-resource-kind`, dto)
+    }
+
+    public async DeleteTask(projectId: string, taskId: string): Promise<void | Error> {
+        return await Client.Post(`Projects/${projectId}/remove-task/${taskId}`)
+    }
+}

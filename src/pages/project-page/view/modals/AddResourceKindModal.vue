@@ -28,9 +28,8 @@
 <style lang="scss" scoped></style>
 <script lang="ts">
 import { defineComponent } from "vue";
-import Modal from "../components/Modal/Modal.vue";
-import Storage from "../store/index";
-import ResourceKind from "../store/dto/resource-kind";
+import Modal from "../../../../components/modal/modal.vue";
+import Storage from "../../store/index";
 
 interface Data {
   isLoadingSubmitButton: boolean;
@@ -52,7 +51,7 @@ export default defineComponent({
     return {
       isLoadingSubmitButton: false,
       storage: Storage.getInstance(),
-      name: null
+      name: null,
     } as Data;
   },
   watch: {
@@ -62,27 +61,21 @@ export default defineComponent({
     canSave(): boolean {
       return !!this.name;
     },
-    resourceKinds(): ResourceKind[] {
-      return this.storage.resourceKinds;
-    },
   },
   methods: {
     onOpen(): void {
       this.isLoadingSubmitButton = false;
-      this.name = null
+      this.name = null;
     },
     save(): void {
       this.isLoadingSubmitButton = true;
-      var id = 0
-      if (this.resourceKinds.length)
-        id = Math.max(...this.resourceKinds.map(x => x.id)) + 1
 
       this.storage.addResourceKind({
-        id: id,
         name: this.name!,
       });
+
       this.isLoadingSubmitButton = false;
-      this.$emit('close')
+      this.$emit("close");
     },
   },
   mounted() {},

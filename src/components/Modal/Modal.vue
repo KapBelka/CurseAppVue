@@ -2,7 +2,7 @@
   <div ref="modal" class="modal" :class="'modal-' + size">
     <div class="modal-dialog">
       <div class="modal-content">
-        <div class="modal-header">
+        <div class="modal-header px-4">
           <h5 class="modal-title">{{ title }}</h5>
           <button
             type="button"
@@ -10,17 +10,16 @@
             @click="$emit('close')"
           ></button>
         </div>
-        <div class="modal-body">
+        <div class="modal-body px-4">
           <slot></slot>
         </div>
-        <div v-if="hasFooterSlot()" class="modal-footer">
+        <div v-if="hasFooterSlot()" class="modal-footer px-4">
           <slot name="footer"></slot>
         </div>
       </div>
     </div>
   </div>
 </template>
-<style lang="scss" scoped></style>
 <script lang="ts">
 import Modal from "bootstrap/js/dist/modal";
 import { defineComponent } from "vue";
@@ -76,3 +75,29 @@ export default defineComponent({
   },
 });
 </script>
+<style lang="scss" scoped>
+.modal {
+  color: #fff;
+}
+
+.modal-title {
+  color: #fff;
+}
+
+.modal-header,
+.modal-content {
+  border: none;
+  background-color: #4f4752;
+}
+
+.modal-body {
+  background-color: #10081b;
+  border-top-left-radius: 20px;
+  border-top-right-radius: 20px;
+  box-shadow: 0 -8px 12px #00000029;
+}
+.modal-footer {
+  border: none;
+  background-color: #10081b;
+}
+</style>
