@@ -21,11 +21,11 @@
   </div>
 </template>
 <script lang="ts">
-//import Modal from "bootstrap/js/dist/modal";
+import Modal from "bootstrap/js/dist/modal";
 import { defineComponent } from "vue";
 
 interface Data {
-  //myModal: Modal | null;
+  myModal: Modal | null;
 }
 
 export default defineComponent({
@@ -46,9 +46,9 @@ export default defineComponent({
   watch: {
     showModal(newVal) {
       if (newVal) {
-        //this.myModal!.show();
+        this.myModal!.show();
       } else {
-        //this.myModal!.hide();
+        this.myModal!.hide();
       }
     },
   },
@@ -64,7 +64,7 @@ export default defineComponent({
   },
   mounted() {
     var modalElem = this.$refs.modal as HTMLDivElement;
-    //this.myModal = new Modal(modalElem);
+    this.myModal = new Modal(modalElem);
     modalElem.addEventListener("hidden.bs.modal", () => {
       this.$emit("close");
     });
