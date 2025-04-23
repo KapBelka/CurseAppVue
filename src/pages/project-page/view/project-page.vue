@@ -59,7 +59,7 @@
           <div
             class="row border-top row-hover py-1"
             style="border-color: #4f4752"
-            v-for="(task, index) in tasks.sort(x => x.order)"
+            v-for="(task, index) in tasks.sort((a, b) => a.order - b.order)"
           >
             <div style="width: 100px">
               {{ task.order + 1 }}
