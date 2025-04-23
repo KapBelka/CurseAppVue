@@ -89,28 +89,28 @@
             <div style="width: 130px">{{ tasks.filter(x => task.needProjectTasksIds.includes(x.id)).map(x => x.order + 1).join("; ") }}</div>
             <div style="width: 80px">
               {{
-                getCalculatedTask(task).resources.reduce(
+                task.resources.reduce(
                   (a, b) => a + b.count,
                   0
                 )
               }}
             </div>
             <div style="width: 80px">
-              {{ getCalculatedTask(task).earlyStart }}
+              {{ task.earlyStart }}
             </div>
             <div style="width: 100px">
-              {{ getCalculatedTask(task).earlyEnd }}
+              {{ task.earlyEnd }}
             </div>
             <div style="width: 80px">
-              {{ getCalculatedTask(task).lateStart }}
+              {{ task.lateStart }}
             </div>
             <div style="width: 100px">
-              {{ getCalculatedTask(task).lateEnd }}
+              {{ task.lateEnd }}
             </div>
             <div style="width: 90px">
-              {{ getCalculatedTask(task).fullReserv }}
+              {{ task.fullReserv }}
             </div>
-            <div style="width: 80px">{{ getCalculatedTask(task).reserv }}</div>
+            <div style="width: 80px">{{ task.reserv }}</div>
           </div>
         </div>
       </div>
@@ -353,67 +353,21 @@ export default defineComponent({
         innerDiv.scrollLeft = div.scrollLeft;
       }
     },
-    getCalculatedTask(task: TaskDto) {
-      return this.tasks.find((x) => x.id == task.id)!;
-    },
-    criticalTasks() {
-      var tasks = this.tasks.filter(
-        (x) => this.isCritical(x) && x.duration
-      );
-      var newTasks = [] as TaskDto[];
-      for (var task of tasks) {
-        if (
-          newTasks.some(
-            (x) =>
-              x.earlyStart == task.earlyStart && x.earlyEnd == task.earlyEnd
-          )
-        )
-          continue;
-
-        newTasks.push(task);
-      }
-      return newTasks;
-    },
-    criticalTasksLate() {
-      var tasks = this.tasks.filter(
-        (x) => this.isCritical(x) && x.duration
-      );
-      var newTasks = [] as TaskDto[];
-      for (var task of tasks) {
-        if (
-          newTasks.some(
-            (x) => x.lateStart == task.lateStart && x.lateEnd == task.lateEnd
-          )
-        )
-          continue;
-
-        newTasks.push(task);
-      }
-      return newTasks;
-    },
     addTask() {
       this.showAddTaskModal = true;
     },
-    deleteTask(taskId: string) {
-      this.storage.deleteTask({ taskId });
+    async deleteTask(taskId: string) {
+      await this.storage.deleteTask({ taskId });
     },
     updateTask(task: TaskDto) {
       this.showUpdateTaskModal = true;
       this.selectedTask = task;
     },
-    moveUpTask(task: TaskDto) {
-      this.storage.moveUpTask(task)
+    async moveUpTask(task: TaskDto) {
+      await this.storage.moveUpTask(task)
     },
-    moveDownTask(task: TaskDto) {
-      this.storage.moveDownTask(task)
-    },
-    isCritical(task: TaskDto): string {
-      if (task.earlyEnd == task.lateEnd && task.earlyStart == task.lateStart)
-        return "*";
-      return "";
-    },
-    maxEnd() {
-      return Math.max(...this.tasks.map((x) => x.earlyEnd!), 0);
+    async moveDownTask(task: TaskDto) {
+      await this.storage.moveDownTask(task)
     },
     drawRects(rects: TaskRect[], toUp: number, ctx: CanvasRenderingContext2D) {
       for (var rect of rects) {

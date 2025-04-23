@@ -1,5 +1,5 @@
 import Vuex from "vuex";
-import { Commit, Store } from "vuex/types/index.js";
+import { Commit, Dispatch, Store } from "vuex/types/index.js";
 import { ProjectPageServices } from "./services";
 import ProjectListItemDto from "../../../services/projects/dtos/project-list-item-dto";
 import CurrentUserDto from "../../../services/auth/dtos/current-user-dto";
@@ -41,57 +41,6 @@ const store = new Vuex.Store({
     },
     removeProjectFromList(state: State, id: string) {
       state.projectsList = state.projectsList.filter((x) => x.id != id);
-    },
-    addTask(state: State, task: TaskDto) {
-      if (!state.project) return;
-
-      state.project.tasks.push(task);
-    },
-    moveUpTask(state: State, task: TaskDto) {
-      if (!state.project) return;
-
-      var nextTask = state.project.tasks.find((x) => x.order == task.order + 1);
-
-      if (nextTask) {
-        nextTask.order--;
-        task.order++;
-      } 
-    },
-    moveDownTask(state: State, task: TaskDto) {
-      if (!state.project) return;
-
-      var prevTask = state.project.tasks.find((x) => x.order == task.order + 1);
-
-      if (prevTask) {
-        prevTask.order++;
-        task.order--;
-      } 
-    },
-    updateTask(state: State, task: TaskDto) {
-      if (!state.project) return;
-
-      var existTask = state.project.tasks.find((x) => x.id == task.id);
-      if (existTask) {
-        existTask.name = task.name;
-        existTask.duration = task.duration;
-        existTask.needProjectTasksIds = task.needProjectTasksIds;
-        existTask.resources = task.resources;
-      }
-    },
-    deleteTask(state: State, taskId: string) {
-      if (!state.project) return;
-
-      state.project.tasks.splice(
-        state.project.tasks.findIndex((x) => x.id == taskId),
-        1
-      );
-      for (var task of state.project.tasks) {
-        if (task.needProjectTasksIds.includes(taskId))
-          task.needProjectTasksIds.splice(
-            task.needProjectTasksIds.findIndex((x) => x == taskId),
-            1
-          );
-      }
     },
     addResourceKind(state: State, resourceKind: ResourceKindDto) {
       if (!state.project) return;
@@ -168,8 +117,36 @@ const store = new Vuex.Store({
 
       commit("setProject", response);
     },
+    async moveUpTask({ commit, state }: { commit: Commit; state: State }, task: TaskDto) {
+      if (!state.project) return;
+
+      var response = await ProjectPageServices.ProjectService.MoveUpTask(state.project.id, task.id);
+      if (response instanceof Error)
+        return;
+
+      var prevTask = state.project.tasks.find((x) => x.order == task.order - 1);
+
+      if (prevTask) {
+        prevTask.order++;
+        task.order--;
+      } 
+    },
+    async moveDownTask({ commit, state }: { commit: Commit; state: State }, task: TaskDto) {
+      if (!state.project) return;
+
+      var response = await ProjectPageServices.ProjectService.MoveDownTask(state.project.id, task.id);
+      if (response instanceof Error)
+        return;
+
+      var nextTask = state.project.tasks.find((x) => x.order == task.order + 1);
+
+      if (nextTask) {
+        nextTask.order--;
+        task.order++;
+      } 
+    },
     async addTask(
-      { commit, state }: { commit: Commit; state: State },
+      { commit, state, dispatch }: { commit: Commit; state: State, dispatch: Dispatch },
       payload: {
         name: string;
         duration: number;
@@ -185,10 +162,10 @@ const store = new Vuex.Store({
       );
       if (response instanceof Error) return;
 
-      commit("addTask", { id: response, ...payload } as TaskDto);
+      dispatch("loadProject", { id: state.project.id })
     },
     async updateTask(
-      { commit, state }: { commit: Commit; state: State },
+      { commit, state, dispatch }: { commit: Commit; state: State, dispatch: Dispatch },
       payload: {
         id: string;
         name: string;
@@ -206,7 +183,7 @@ const store = new Vuex.Store({
       );
       if (response instanceof Error) return;
 
-      commit("updateTask", payload as TaskDto);
+      dispatch("loadProject", { id: state.project.id })
     },
     async updateTaskOptimizedTime(
       { commit, state }: { commit: Commit; state: State },
@@ -226,7 +203,7 @@ const store = new Vuex.Store({
       if (response instanceof Error) return;
     },
     async deleteTask(
-      { commit, state }: { commit: Commit; state: State },
+      { commit, state, dispatch }: { commit: Commit; state: State, dispatch: Dispatch },
       payload: { taskId: string }
     ) {
       if (!state.project) return;
@@ -237,7 +214,7 @@ const store = new Vuex.Store({
       );
       if (response instanceof Error) return;
 
-      commit("deleteTask", payload.taskId);
+      dispatch("loadProject", { id: state.project.id })
     },
     async addResourceKind(
       { commit, state }: { commit: Commit; state: State },

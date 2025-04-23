@@ -84,11 +84,11 @@
             <option
               :value="task.id"
               :selected="neededTasksIds.includes(task.id)"
-              v-for="(task, index) in tasks.filter(
-                (x) => x.id == taskId || neededTasksIds.includes(x.id) == false
-              )"
+              v-for="(task) in tasks.filter(
+                (x) => (x.id == taskId || neededTasksIds.includes(x.id) == false) && x.id != selectedTask?.id
+              ).sort((a, b) => a.order - b.order)"
             >
-              {{ index }} {{ task.name }}
+              {{ task.order + 1 }} {{ task.name }}
             </option>
           </select>
           <i
@@ -177,8 +177,7 @@ export default defineComponent({
       default: false,
     },
     selectedTask: {
-      type: Object as PropType<TaskDto | null>,
-      required: true,
+      type: Object as PropType<TaskDto | null>
     },
   },
   components: {
