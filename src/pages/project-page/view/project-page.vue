@@ -44,7 +44,7 @@
             class="row pb-2 border-bottom"
             style="position: sticky; top: 0; background-color: #fff"
           >
-            <div class="fw-500" style="width: 100px">Номер задачи</div>
+            <div class="fw-500" style="width: 130px">Номер задачи</div>
             <div class="fw-500" style="width: 600px">Название</div>
             <div class="fw-500" style="width: 60px">Срок</div>
             <div class="fw-500" style="width: 130px">Предыдущие задачи</div>
@@ -61,7 +61,7 @@
             style="border-color: #4f4752"
             v-for="(task, index) in tasks.sort((a, b) => a.order - b.order)"
           >
-            <div style="width: 100px">
+            <div style="width: 130px">
               {{ task.order + 1 }}
               <i
                 @click="updateTask(task)"
