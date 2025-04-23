@@ -15,6 +15,7 @@ export interface LinkForJoinDto {
 
 export interface TaskDto {
   id: string;
+  order: number;
   name: string;
   duration: number;
   resources: TaskResourceDto[];

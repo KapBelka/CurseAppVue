@@ -59,10 +59,10 @@
           <div
             class="row border-top row-hover py-1"
             style="border-color: #4f4752"
-            v-for="(task, index) in tasks"
+            v-for="(task, index) in tasks.sort(x => x.order)"
           >
             <div style="width: 100px">
-              {{ index }}
+              {{ task.order + 1 }}
               <i
                 @click="updateTask(task)"
                 class="bi-pencil ms-2"
@@ -73,10 +73,20 @@
                 class="bi-trash ms-2"
                 style="cursor: pointer"
               ></i>
+              <i 
+                @click="moveUpTask(task)" 
+                class="bi bi-caret-up-square"
+                style="cursor: pointer"
+              ></i>
+              <i 
+                @click="moveDownTask(task)" 
+                class="bi bi-caret-down-square"
+                style="cursor: pointer"
+              ></i>
             </div>
             <div style="width: 600px">{{ task.name }}</div>
             <div style="width: 60px">{{ task.duration }}</div>
-            <div style="width: 130px">{{ tasks.filter(x => task.needProjectTasksIds.includes(x.id)).map(x => x.name).join("; ") }}</div>
+            <div style="width: 130px">{{ tasks.filter(x => task.needProjectTasksIds.includes(x.id)).map(x => x.order + 1).join("; ") }}</div>
             <div style="width: 80px">
               {{
                 getCalculatedTask(task).resources.reduce(
@@ -390,6 +400,12 @@ export default defineComponent({
     updateTask(task: TaskDto) {
       this.showUpdateTaskModal = true;
       this.selectedTask = task;
+    },
+    moveUpTask(task: TaskDto) {
+      this.storage.moveUpTask(task)
+    },
+    moveDownTask(task: TaskDto) {
+      this.storage.moveDownTask(task)
     },
     isCritical(task: TaskDto): string {
       if (task.earlyEnd == task.lateEnd && task.earlyStart == task.lateStart)

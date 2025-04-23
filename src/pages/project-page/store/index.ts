@@ -77,6 +77,14 @@ export default class Storage {
     await storage.dispatch("updateTask", payload);
   }
 
+  async moveUpTask(payload: TaskDto) {
+    await storage.dispatch("moveUpTask", payload);
+  }
+
+  async moveDownTask(payload: TaskDto) {
+    await storage.dispatch("moveDownTask", payload);
+  }
+
   async updateTaskOptimizedTime(payload: {
     id: string;
     start: number;

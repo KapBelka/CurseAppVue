@@ -32,6 +32,14 @@ export default class ProjectService {
         return await Client.Post(`Projects/${projectId}/update-task/${taskId}`, dto)
     }
 
+    public async MoveUpTask(projectId: string, taskId: string): Promise<void | Error> {
+        return await Client.Post(`Projects/${projectId}/move-up-task/${taskId}`, {})
+    }
+
+    public async MoveDownTask(projectId: string, taskId: string): Promise<void | Error> {
+        return await Client.Post(`Projects/${projectId}/move-down-task/${taskId}`, {})
+    }
+
     public async UpdateTaskOptimizedTime(projectId: string, taskId: string, dto: UpdateTaskOptimizedTimeDto): Promise<void | Error> {
         return await Client.Post(`Projects/${projectId}/set-task-optimized-time/${taskId}`, dto)
     }

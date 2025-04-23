@@ -47,6 +47,26 @@ const store = new Vuex.Store({
 
       state.project.tasks.push(task);
     },
+    moveUpTask(state: State, task: TaskDto) {
+      if (!state.project) return;
+
+      var nextTask = state.project.tasks.find((x) => x.order == task.order + 1);
+
+      if (nextTask) {
+        nextTask.order--;
+        task.order++;
+      } 
+    },
+    moveDownTask(state: State, task: TaskDto) {
+      if (!state.project) return;
+
+      var prevTask = state.project.tasks.find((x) => x.order == task.order + 1);
+
+      if (prevTask) {
+        prevTask.order++;
+        task.order--;
+      } 
+    },
     updateTask(state: State, task: TaskDto) {
       if (!state.project) return;
 
