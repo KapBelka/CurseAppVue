@@ -3,22 +3,6 @@
     <div>
       <div class="d-flex align-items-center justify-content-between">
         <!-- <div class="d-flex">
-        <input
-          :disabled="storage.tasks.length > 0"
-          v-model="projectKey"
-          type="password"
-          class="form-control"
-          placeholder="Ключ к проекту"
-          id="nameInput"
-        />
-
-        <button
-          @click="loadProject()"
-          type="button"
-          class="btn btn-outline-primary c-pointer btn-add ms-2"
-        >
-          Ок
-        </button>
         <input placeholder="Поиск" class="form-control py-2 search-field" type="text" style="background-color: #4F4752; border-radius: 20px; border: none; width: 400px; color: #fff"></input>
       </div> -->
         <div class="d-flex gap-3">
@@ -34,209 +18,16 @@
           <!-- <button class="py-1 px-3 btn" style="color: #FFFFFF; font-size: 20px; border: 1px solid #FFFFFF; border-radius: 20px; background-color: #ffffff00; box-shadow: 0 0 1px 0px white inset, 0 0 1px 0px white">Удалить</button> -->
         </div>
       </div>
-      <div
-        v-show="storage.project"
-        class="mt-5 py-3"
-        style="background-color: #fff; border-radius: 20px; font-size: 14px"
-      >
-        <div class="px-3" style="overflow-y: auto; max-height: 360px">
-          <div
-            class="row pb-2 border-bottom"
-            style="position: sticky; top: 0; background-color: #fff"
-          >
-            <div class="fw-500" style="width: 140px">Номер задачи</div>
-            <div class="fw-500" style="width: 600px">Название</div>
-            <div class="fw-500" style="width: 60px">Срок</div>
-            <div class="fw-500" style="width: 130px">Предыдущие задачи</div>
-            <div class="fw-500" style="width: 80px">Ресурсы</div>
-            <div class="fw-500" style="width: 80px">Раннее начало</div>
-            <div class="fw-500" style="width: 100px">Раннее окончание</div>
-            <div class="fw-500" style="width: 80px">Позднее начало</div>
-            <div class="fw-500" style="width: 100px">Позднее окончание</div>
-            <div class="fw-500" style="width: 90px">Полный резерв</div>
-            <div class="fw-500" style="width: 80px">Свободный резерв</div>
-          </div>
-          <div
-            class="row border-top row-hover py-1"
-            style="border-color: #4f4752"
-            v-for="(task, index) in tasks.sort((a, b) => a.order - b.order)"
-          >
-            <div style="width: 130px">
-              {{ task.order + 1 }}
-              <i
-                @click="updateTask(task)"
-                class="bi-pencil ms-2"
-                style="cursor: pointer"
-              ></i>
-              <i
-                @click="deleteTask(task.id)"
-                class="bi-trash ms-1"
-                style="cursor: pointer"
-              ></i>
-              <i
-                @click="moveUpTask(task)"
-                class="bi bi-caret-up-square ms-1"
-                style="cursor: pointer"
-              ></i>
-              <i
-                @click="moveDownTask(task)"
-                class="bi bi-caret-down-square ms-1"
-                style="cursor: pointer"
-              ></i>
-            </div>
-            <div style="width: 600px">{{ task.name }}</div>
-            <div style="width: 60px">{{ task.duration }}</div>
-            <div style="width: 130px">
-              {{
-                tasks
-                  .filter((x) => task.needProjectTasksIds.includes(x.id))
-                  .map((x) => x.order + 1)
-                  .join("; ")
-              }}
-            </div>
-            <div style="width: 80px">
-              {{ task.resources.reduce((a, b) => a + b.count, 0) }}
-            </div>
-            <div style="width: 80px">
-              {{ task.earlyStart }}
-            </div>
-            <div style="width: 100px">
-              {{ task.earlyEnd }}
-            </div>
-            <div style="width: 80px">
-              {{ task.lateStart }}
-            </div>
-            <div style="width: 100px">
-              {{ task.lateEnd }}
-            </div>
-            <div style="width: 90px">
-              {{ task.fullReserv }}
-            </div>
-            <div style="width: 80px">{{ task.reserv }}</div>
-          </div>
-        </div>
-      </div>
+      <TasksTable />
       <div class="mt-5 d-flex gap-3" v-if="projectLoaded">
-        <div
-          style="
-            background-color: #4f4752;
-            border-radius: 20px;
-            font-size: 14px;
-            flex: 1;
-          "
-        >
-          <div class="px-4 py-2" style="color: #fff">График Ранний</div>
-          <div
-            class="px-3"
-            style="
-              background-color: #fff;
-              border-radius: 20px;
-              box-shadow: 0 -8px 12px #00000029;
-            "
-          >
-            <div
-              class="example-div d-flex"
-              @scroll="onScroll"
-              style="overflow-x: auto; width: 500px"
-            >
-              <canvas
-                class="d-block"
-                style="position: sticky; left: 0"
-                id="example11"
-              ></canvas
-              ><canvas
-                @mousemove="onCanvasMove($event, 'example')"
-                class="d-block"
-                id="example"
-              ></canvas>
-            </div>
-          </div>
-        </div>
-        <div
-          style="
-            background-color: #4f4752;
-            border-radius: 20px;
-            font-size: 14px;
-            flex: 1;
-          "
-        >
-          <div class="px-4 py-2" style="color: #fff">График Поздний</div>
-          <div
-            class="px-3"
-            style="
-              background-color: #fff;
-              border-radius: 20px;
-              box-shadow: 0 -8px 12px #00000029;
-            "
-          >
-            <div
-              class="example-div d-flex"
-              @scroll="onScroll"
-              style="overflow-x: auto; width: 500px"
-            >
-              <canvas
-                class="d-block"
-                style="position: sticky; left: 0"
-                id="example21"
-              ></canvas
-              ><canvas
-                @mousemove="onCanvasMove($event, 'example2')"
-                class="d-block"
-                id="example2"
-              ></canvas>
-            </div>
-          </div>
-        </div>
-        <div
-          style="
-            background-color: #4f4752;
-            border-radius: 20px;
-            font-size: 14px;
-            flex: 1;
-          "
-        >
-          <div class="px-4 py-2" style="color: #fff">
-            График Скорректированный
-          </div>
-          <div
-            class="px-3"
-            style="
-              background-color: #fff;
-              border-radius: 20px;
-              box-shadow: 0 -8px 12px #00000029;
-            "
-          >
-            <div
-              class="example-div d-flex"
-              @scroll="onScroll"
-              style="overflow-x: auto; width: 500px"
-            >
-              <canvas
-                class="d-block"
-                style="position: sticky; left: 0"
-                id="example31"
-              ></canvas
-              ><canvas
-                @mousemove="onCanvasClick($event)"
-                @mousedown="onCanvasClick($event)"
-                @mouseup="onCanvasClick($event)"
-                @mouseleave="onCanvasClick($event)"
-                class="d-block"
-                id="example3"
-              ></canvas>
-            </div>
-          </div>
-        </div>
+        <ResourceGraph title="График Ранний" :rects="earlyRects" />
+        <ResourceGraph title="График Поздний" :rects="lateRects" />
+        <CorrectedResourceGraph />
       </div>
     </div>
     <AddTaskModal
       :showModal="showAddTaskModal"
       @close="showAddTaskModal = false"
-    />
-    <UpdateTaskModal
-      :showModal="showUpdateTaskModal"
-      :selectedTask="selectedTask"
-      @close="showUpdateTaskModal = false"
     />
   </PageContainer>
 </template>
@@ -245,386 +36,44 @@
 import { defineComponent } from "vue";
 import storage from "../store/index";
 import AddTaskModal from "./modals/AddTaskModal.vue";
-import UpdateTaskModal from "./modals/UpdateTaskModal.vue";
-import {
-  calculatedTasksRectsEarly,
-  calculatedTasksRectsLate,
-  calculatedTasksRectsNormal,
-  TaskRect,
-} from "../store/taskCalculator";
 import PageContainer from "../../../components/pageContainer/page-container.vue";
-import {
-  ResourceKindDto,
-  TaskDto,
-} from "../../../services/projects/dtos/project-dto";
+import TasksTable from "./components/tasks-table.vue";
+import ResourceGraph from "./components/resource-graph.vue";
+import { calculatedTasksRectsEarly, TaskRect } from "../store/taskCalculator";
+import { TaskDto } from "../../../services/projects/dtos/project-dto";
+import CorrectedResourceGraph from "./components/corrected-resource-graph.vue";
 
 export default defineComponent({
   components: {
     AddTaskModal,
-    UpdateTaskModal,
+    TasksTable,
     PageContainer,
+    ResourceGraph,
+    CorrectedResourceGraph,
   },
   data() {
     return {
-      editable: false,
       storage: storage.getInstance(),
-      selectedResourceKindId: null as string | null,
       showAddTaskModal: false,
-      showUpdateTaskModal: false,
-      selectedTask: null as null | TaskDto,
-      taskForMove: null as null | TaskDto,
-      normalRects: [] as TaskRect[],
-      lastMouseX: null as number | null,
     };
   },
   methods: {
-    getRect(rects: TaskRect[], x: number, y: number): TaskRect | null {
-      this.normalRects.find(
-        (i) => x >= i.x1! && x <= i.x2! && y >= i.y1! && y <= i.y2!
-      );
-
-      var findedRect: TaskRect | null = null;
-
-      for (var rect of rects) {
-        if (x >= rect.x1! && x <= rect.x2! && y >= rect.y1! && y <= rect.y2!)
-          return rect;
-
-        findedRect =
-          rect.upperRects.find(
-            (i) => x >= i.x1! && x <= i.x2! && y >= i.y1! && y <= i.y2!
-          ) ?? null;
-        if (findedRect) return findedRect;
-
-        findedRect = this.getRect(rect.upperRects, x, y);
-        if (findedRect) return findedRect;
-      }
-
-      return findedRect;
-    },
-    onCanvasMove(event: MouseEvent, id: string) {
-      var example3 = document.getElementById(id) as HTMLCanvasElement;
-
-      if (!example3) return;
-
-      if (event.type == "mousemove") {
-        var rect = this.getRect(this.normalRects, event.offsetX, event.offsetY);
-
-        if (rect != null) {
-          var task = this.tasks.find((x) => x.id == rect!.id)!;
-          example3.title = task.name;
-        }
-      }
-    },
-    onCanvasClick(event: MouseEvent) {
-      var example3 = document.getElementById("example3") as HTMLCanvasElement;
-
-      if (!example3) return;
-
-      if (event.type == "mousedown") {
-        var rect = this.getRect(this.normalRects, event.offsetX, event.offsetY);
-
-        if (rect != null) {
-          var task = this.tasks.find((x) => x.id == rect!.id)!;
-          if (task.isCritical == false) this.taskForMove = task;
-          else this.taskForMove = null;
-        }
-
-        this.lastMouseX = event.offsetX;
-      }
-
-      if (event.type == "mouseup" || event.type == "mouseleave") {
-        if (this.taskForMove)
-          this.storage.updateTaskOptimizedTime({
-            id: this.taskForMove.id,
-            start: this.taskForMove.optimizedStart!,
-            end: this.taskForMove.optimizedEnd!,
-          });
-
-        this.taskForMove = null;
-
-        this.lastMouseX = event.offsetX;
-
-        this.normalRects = calculatedTasksRectsNormal(
-          this.tasks.filter(
-            (x) => x.optimizedStart != null && x.optimizedEnd != null
-          )
-        );
-        this.drawGraph(example3, this.normalRects);
-      }
-
-      if (event.type == "mousemove") {
-        var rect = this.getRect(this.normalRects, event.offsetX, event.offsetY);
-
-        if (rect != null) {
-          var task = this.tasks.find((x) => x.id == rect!.id)!;
-          if (task.isCritical == false)
-            example3.style.cursor = "pointer";
-          else
-            example3.style.cursor = "";
-
-          example3.title = task.name;
-        } else {
-          example3.style.cursor = "";
-          example3.title = "";
-        }
-
-        if (this.taskForMove) {
-          if (Math.abs(event.offsetX - this.lastMouseX!) >= 20) {
-            if (event.offsetX - this.lastMouseX! > 0) {
-              if (
-                this.taskForMove.optimizedEnd + 1 <=
-                this.taskForMove.lateEnd
-              ) {
-                this.taskForMove.optimizedStart += 1;
-                this.taskForMove.optimizedEnd += 1;
-              }
-            } else {
-              if (
-                this.taskForMove.optimizedStart - 1 >=
-                this.taskForMove.earlyStart
-              ) {
-                this.taskForMove.optimizedStart -= 1;
-                this.taskForMove.optimizedEnd -= 1;
-              }
-            }
-
-            this.normalRects = calculatedTasksRectsNormal(
-              this.tasks.filter(
-                (x) => x.optimizedStart != null && x.optimizedEnd != null
-              )
-            );
-            this.drawGraph(example3, this.normalRects);
-
-            this.lastMouseX = event.offsetX;
-          }
-        }
-      }
-    },
-    onScroll(event: Event) {
-      var div = event.target as HTMLDivElement;
-      for (var innerDiv of document.getElementsByClassName(
-        "example-div"
-      ) as HTMLCollectionOf<HTMLDivElement>) {
-        innerDiv.scrollLeft = div.scrollLeft;
-      }
-    },
     addTask() {
       this.showAddTaskModal = true;
     },
-    async deleteTask(taskId: string) {
-      await this.storage.deleteTask({ taskId });
-    },
-    updateTask(task: TaskDto) {
-      this.showUpdateTaskModal = true;
-      this.selectedTask = task;
-    },
-    async moveUpTask(task: TaskDto) {
-      await this.storage.moveUpTask(task);
-    },
-    async moveDownTask(task: TaskDto) {
-      await this.storage.moveDownTask(task);
-    },
-    drawRects(rects: TaskRect[], toUp: number, ctx: CanvasRenderingContext2D) {
-      for (var rect of rects) {
-        let widthFor1 = 20;
-        let heightFor1 = 20;
-        let startX = 5;
-        let startY = 240;
-        ctx.strokeStyle = toUp ? "#4F4752" : "#D66434";
-
-        rect.x1 = startX + widthFor1 * rect.a;
-        rect.y1 = startY - heightFor1 * (rect.resources + toUp);
-        rect.x2 = rect.x1 + widthFor1 * (rect.b - rect.a);
-        rect.y2 = rect.y1 + heightFor1 * rect.resources;
-
-        ctx.strokeRect(
-          rect.x1,
-          rect.y1,
-          widthFor1 * (rect.b - rect.a),
-          heightFor1 * rect.resources
-        );
-        ctx.fillStyle = toUp ? "#4F475287" : "#D6643487";
-        ctx.fillRect(
-          rect.x1,
-          rect.y1,
-          widthFor1 * (rect.b - rect.a),
-          heightFor1 * rect.resources
-        );
-        ctx.fillText(
-          `${rect.order + 1}`,
-          startX + widthFor1 * rect.a + (widthFor1 * (rect.b - rect.a)) / 2 - 3,
-          startY - heightFor1 * (rect.resources / 2 + toUp) + 5
-        );
-
-        this.drawRects(rect.upperRects, toUp + rect.resources, ctx);
-      }
-    },
-    drawGraph(canvas: HTMLCanvasElement, rects: TaskRect[]) {
-      var ctx = canvas.getContext("2d")!;
-      canvas.height = 280;
-      canvas.width = 20 * rects.reduce((a, b) => (b.b > a ? b.b : a), 0) + 100;
-
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-      ctx.strokeStyle = "#4F4752";
-      ctx.lineWidth = 0.4;
-      ctx.beginPath();
-
-      ctx.font = "14px serif";
-
-      for (var i = 0; i < canvas.height / 20 - 1; i++) {
-        ctx.moveTo(5, i * 20);
-        ctx.lineTo(canvas.width - 20, i * 20);
-      }
-
-      ctx.stroke();
-
-      ctx.closePath();
-
-      ctx.beginPath();
-
-      if (this.taskForMove) {
-        ctx.strokeStyle = "#D66434";
-        ctx.lineWidth = 1;
-        ctx.moveTo(5 + this.taskForMove.earlyStart * 20, 0);
-        ctx.lineTo(5 + this.taskForMove.earlyStart * 20, canvas.height - 40);
-
-        ctx.moveTo(5 + this.taskForMove.lateEnd * 20, 0);
-        ctx.lineTo(5 + this.taskForMove.lateEnd * 20, canvas.height - 40);
-      }
-      // for (var i = 0; i < ((canvas.height) / 20) - 2; i++) {
-      //   ctx.fillText(`${canvas.height / 20 - i - 3}`, 5, 25 + 20 * i);
-      // }
-
-      for (var i = 0; i < canvas.width / 20 - 2; i++) {
-        ctx.fillText(`${i}`, 2 + 20 * i, 265);
-      }
-
-      ctx.stroke();
-
-      ctx.closePath();
-
-      this.drawRects(rects, 0, ctx);
-    },
-    drawHead(canvas: HTMLCanvasElement) {
-      var ctx = canvas.getContext("2d")!;
-      canvas.height = 280;
-      canvas.width = 20;
-      ctx.font = "14px serif";
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-      ctx.fillStyle = "#ffffff";
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-      ctx.fillStyle = "#000000";
-      for (var i = 0; i < canvas.height / 20 - 2; i++) {
-        ctx.fillText(`${canvas.height / 20 - i - 3}`, 5, 25 + 20 * i);
-      }
-
-      ctx.stroke();
-    },
   },
   computed: {
-    tasks(): TaskDto[] {
-      return this.storage.tasks;
+    earlyRects(): TaskRect[] {
+      return calculatedTasksRectsEarly(this.tasks);
     },
-    resourceKinds(): ResourceKindDto[] {
-      return this.storage.resourceKinds;
+    lateRects(): TaskRect[] {
+      return calculatedTasksRectsEarly(this.tasks);
+    },
+    tasks(): TaskDto[] {
+      return this.storage.project?.tasks ?? [];
     },
     projectLoaded(): boolean {
       return this.storage.project != null;
-    },
-  },
-  watch: {
-    // calculatedTasks: {
-    //   handler: function () {
-    //     var example = document.getElementById("example") as HTMLCanvasElement;
-    //     if (!example) return;
-
-    //     this.drawGraph(
-    //       example,
-    //       calculatedTasksRectsEarly(this.calculatedTasks)
-    //     );
-
-    //     var example11 = document.getElementById(
-    //       "example11"
-    //     ) as HTMLCanvasElement;
-    //     if (!example11) return;
-    //     this.drawHead(example11);
-
-    //     var example2 = document.getElementById("example2") as HTMLCanvasElement;
-    //     if (!example2) return;
-    //     this.drawGraph(
-    //       example2,
-    //       calculatedTasksRectsLate(this.calculatedTasks)
-    //     );
-
-    //     var example21 = document.getElementById(
-    //       "example21"
-    //     ) as HTMLCanvasElement;
-    //     if (!example21) return;
-    //     this.drawHead(example21);
-
-    //     var example3 = document.getElementById("example3") as HTMLCanvasElement;
-    //     if (!example3) return;
-    //     this.drawGraph(
-    //       example3,
-    //       calculatedTasksRectsNormal(this.calculatedTasks)
-    //     );
-
-    //     var example31 = document.getElementById(
-    //       "example31"
-    //     ) as HTMLCanvasElement;
-    //     if (!example31) return;
-    //     this.drawHead(example31);
-    //   },
-    //   deep: true,
-    // },
-    projectLoaded: {
-      handler: async function () {
-        this.$nextTick(function () {
-          var example = document.getElementById("example") as HTMLCanvasElement;
-          if (!example) return;
-
-          this.drawGraph(example, calculatedTasksRectsEarly(this.tasks));
-
-          var example11 = document.getElementById(
-            "example11"
-          ) as HTMLCanvasElement;
-          if (!example11) return;
-          this.drawHead(example11);
-
-          var example2 = document.getElementById(
-            "example2"
-          ) as HTMLCanvasElement;
-          if (!example2) return;
-          this.drawGraph(example2, calculatedTasksRectsLate(this.tasks));
-
-          var example21 = document.getElementById(
-            "example21"
-          ) as HTMLCanvasElement;
-          if (!example21) return;
-          this.drawHead(example21);
-
-          var example3 = document.getElementById(
-            "example3"
-          ) as HTMLCanvasElement;
-          if (!example3) return;
-          this.normalRects = calculatedTasksRectsNormal(
-            this.tasks.filter(
-              (x) => x.optimizedStart != null && x.optimizedEnd != null
-            )
-          );
-          this.drawGraph(example3, this.normalRects);
-
-          var example31 = document.getElementById(
-            "example31"
-          ) as HTMLCanvasElement;
-          if (!example31) return;
-          this.drawHead(example31);
-        });
-      },
-      deep: true,
     },
   },
   async mounted() {
