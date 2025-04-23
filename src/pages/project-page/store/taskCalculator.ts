@@ -174,6 +174,7 @@ import { TaskDto } from "../../../services/projects/dtos/project-dto";
 
 export interface TaskRect {
   id: string
+  order: number
   a: number
   b: number
   x1: number | null
@@ -188,6 +189,7 @@ export function calculatedTasksRectsEarly(calculatedTasks: TaskDto[]): TaskRect[
   let sourceRects = calculatedTasks.filter(x => !x.isCritical && x.resources.length).map(x => { 
     return {
       id: x.id,
+      order: x.order,
       a: x.earlyStart,
       b: x.earlyEnd,
       x1: null,
@@ -202,6 +204,7 @@ export function calculatedTasksRectsEarly(calculatedTasks: TaskDto[]): TaskRect[
   let foundationRects = calculatedTasks.filter(x => x.isCritical && x.resources.length).map(x => { 
     return {
       id: x.id,
+      order: x.order,
       a: x.earlyStart,
       b: x.earlyEnd,
       x1: null,
@@ -220,6 +223,7 @@ export function calculatedTasksRectsLate(calculatedTasks: TaskDto[]): TaskRect[]
   let sourceRects = calculatedTasks.filter(x => !x.isCritical && x.resources.length).map(x => { 
     return {
       id: x.id,
+      order: x.order,
       a: x.lateStart,
       b: x.lateEnd,
       x1: null,
@@ -234,6 +238,7 @@ export function calculatedTasksRectsLate(calculatedTasks: TaskDto[]): TaskRect[]
   let foundationRects = calculatedTasks.filter(x => x.isCritical && x.resources.length).map(x => { 
     return {
       id: x.id,
+      order: x.order,
       a: x.lateStart,
       b: x.lateEnd,
       x1: null,
@@ -252,6 +257,7 @@ export function calculatedTasksRectsNormal(calculatedTasks: TaskDto[]): TaskRect
   let sourceRects = calculatedTasks.filter(x => !x.isCritical && x.resources.length).map(x => { 
     return {
       id: x.id,
+      order: x.order,
       a: x.optimizedStart,
       b: x.optimizedEnd,
       x1: null,
@@ -266,6 +272,7 @@ export function calculatedTasksRectsNormal(calculatedTasks: TaskDto[]): TaskRect
   let foundationRects = calculatedTasks.filter(x => x.isCritical && x.resources.length).map(x => { 
     return {
       id: x.id,
+      order: x.order,
       a: x.optimizedStart,
       b: x.optimizedEnd,
       x1: null,
@@ -349,6 +356,7 @@ function getRect(rect: TaskRect, a: number, b: number): TaskRect {
 
   return {
     id: rect.id,
+    order: rect.order,
     a: localA,
     b: localB,
     x1: null,
