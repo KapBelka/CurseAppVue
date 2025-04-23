@@ -70,17 +70,17 @@
               ></i>
               <i
                 @click="deleteTask(task.id)"
-                class="bi-trash ms-2"
+                class="bi-trash ms-1"
                 style="cursor: pointer"
               ></i>
               <i 
                 @click="moveUpTask(task)" 
-                class="bi bi-caret-up-square ms-2"
+                class="bi bi-caret-up-square ms-1"
                 style="cursor: pointer"
               ></i>
               <i 
                 @click="moveDownTask(task)" 
-                class="bi bi-caret-down-square ms-2"
+                class="bi bi-caret-down-square ms-1"
                 style="cursor: pointer"
               ></i>
             </div>
