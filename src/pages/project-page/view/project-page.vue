@@ -44,7 +44,7 @@
             class="row pb-2 border-bottom"
             style="position: sticky; top: 0; background-color: #fff"
           >
-            <div class="fw-500" style="width: 130px">Номер задачи</div>
+            <div class="fw-500" style="width: 140px">Номер задачи</div>
             <div class="fw-500" style="width: 600px">Название</div>
             <div class="fw-500" style="width: 60px">Срок</div>
             <div class="fw-500" style="width: 130px">Предыдущие задачи</div>
