@@ -75,12 +75,12 @@
               ></i>
               <i 
                 @click="moveUpTask(task)" 
-                class="bi bi-caret-up-square"
+                class="bi bi-caret-up-square ms-2"
                 style="cursor: pointer"
               ></i>
               <i 
                 @click="moveDownTask(task)" 
-                class="bi bi-caret-down-square"
+                class="bi bi-caret-down-square ms-2"
                 style="cursor: pointer"
               ></i>
             </div>
