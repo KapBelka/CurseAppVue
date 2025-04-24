@@ -6,7 +6,7 @@ import { router } from '../main';
 //const SERVER_URL = 'http://localhost:44305/'
 
 export default class Client {
-    static _serverApiUrl: string = 'http://158.160.182.122:44305/'//`${SERVER_URL}`
+    static _serverApiUrl: string = process.env.VUE_APP_API_URL ?? 'http://localhost:44305/'// 'http://158.160.182.122:44305/'//`${SERVER_URL}`
 
     static async Get<T>(url: string, needAuthorize: boolean = true): Promise<T | Error> {
         var axiosRequestConfig: AxiosRequestConfig = {}
