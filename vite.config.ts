@@ -5,6 +5,6 @@ import vue from '@vitejs/plugin-vue'
 export default defineConfig({
   plugins: [vue()],
   define: {
-    'process.env.VITE_API_URL': JSON.stringify('q')
+    'process.env.VITE_API_URL': JSON.stringify('')
   }
 })
