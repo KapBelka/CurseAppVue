@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div style="display: block;" class="modal" :class="'modal-md'">
+    <div class="modal d-block" :class="'modal-md'">
       <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
           <div class="modal-header px-4">
@@ -131,30 +131,3 @@ export default defineComponent({
   async mounted() {},
 });
 </script>
-
-<style scoped>
-.modal {
-  color: #fff;
-}
-
-.modal-title {
-  color: #fff;
-}
-
-.modal-header,
-.modal-content {
-  border: none;
-  background-color: #4f4752;
-}
-
-.modal-body {
-  background-color: #10081b;
-  border-top-left-radius: 20px;
-  border-top-right-radius: 20px;
-  box-shadow: 0 -8px 12px #00000029;
-}
-.modal-footer {
-  border: none;
-  background-color: #10081b;
-}
-</style>

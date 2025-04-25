@@ -1,8 +1,7 @@
 <template>
   <div
     v-show="storage.project"
-    class="mt-5 py-3"
-    style="background-color: #fff; border-radius: 20px; font-size: 16px"
+    class="mt-5 py-3 tasks-table fs-16px"
   >
     <div class="px-3" style="overflow-y: auto; max-height: 360px">
       <div
@@ -87,6 +86,13 @@
     />
   </div>
 </template>
+
+<style scoped lang="scss">
+.tasks-table {
+  border-radius: 20px;
+  background-color: white;
+}
+</style>
 
 <script lang="ts">
 import { defineComponent } from "vue";

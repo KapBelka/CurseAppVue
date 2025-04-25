@@ -73,7 +73,6 @@
         </div>
         <a
           class="link-opacity-100 link-underline link-underline-opacity-0 c-pointer"
-          style="color: #d66434"
           @click="addNewResource()"
           >+ добавить</a
         >
@@ -103,7 +102,6 @@
         </div>
         <a
           class="link-opacity-100 link-underline link-underline-opacity-0 c-pointer"
-          style="color: #d66434"
           @click="addNewNeededTask()"
           >+ добавить</a
         >
@@ -133,74 +131,6 @@
   </Modal>
 </template>
 <style lang="scss" scoped>
-// .form-label {
-//   font-weight: 700;
-//   font-size: 20px;
-//   color: #fff;
-// }
-
-// .form-control, .input-group, .btn, .form-select {
-//   border-radius: 20px;
-// }
-
-// .btn-plus {
-//   background-color: #D66434;
-//   font-size: 20px;
-//   border-radius: 20px;
-//   border-color: #D66434;
-// }
-
-// .btn-plus:hover {
-//   color: #fff;
-//   background-color: #9c4926 !important;
-//   border-color: #9c4926;
-// }
-
-// .btn-plus:active {
-//   color: #fff;
-//   background-color: #9c4926 !important;
-//   border-color: #9c4926;
-// }
-
-// .btn-add {
-//   color: #D66434;
-//   font-size: 20px;
-//   border-radius: 20px;
-//   border: 1px solid #D66434;
-//   box-shadow: 0 0 1px 0px #D66434 inset, 0 0 1px 0px #D66434
-// }
-
-// .btn-add:hover {
-//   color: #fff;
-//   background-color: #D66434;
-//   border: 1px solid #D66434;
-//   box-shadow: 0 0 1px 0px #D66434 inset, 0 0 1px 0px #D66434
-// }
-
-// .btn-add:active {
-//   color: #fff;
-//   background-color: #9c4926 !important;
-// }
-
-// .btn-add2 {
-//   color: #fff;
-//   font-size: 20px;
-//   border-radius: 20px;
-//   border: 1px solid #fff;
-//   box-shadow: 0 0 1px 0px #fff inset, 0 0 1px 0px #fff
-// }
-
-// .btn-add2:hover {
-//   color: #000;
-//   background-color: #fff;
-//   border: 1px solid #fff;
-//   box-shadow: 0 0 1px 0px #fff inset, 0 0 1px 0px #fff
-// }
-
-// .btn-add2:active {
-//   color: #fff;
-//   background-color: #fff !important;
-// }
 </style>
 <script lang="ts">
 import { defineComponent } from "vue";

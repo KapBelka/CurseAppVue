@@ -75,29 +75,3 @@ export default defineComponent({
   },
 });
 </script>
-<style lang="scss" scoped>
-.modal {
-  color: #fff;
-}
-
-.modal-title {
-  color: #fff;
-}
-
-.modal-header,
-.modal-content {
-  border: none;
-  background-color: #4f4752;
-}
-
-.modal-body {
-  background-color: #10081b;
-  border-top-left-radius: 20px;
-  border-top-right-radius: 20px;
-  box-shadow: 0 -8px 12px #00000029;
-}
-.modal-footer {
-  border: none;
-  background-color: #10081b;
-}
-</style>

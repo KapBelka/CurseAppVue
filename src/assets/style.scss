@@ -1,0 +1,31 @@
+@import "./modal.scss";
+
+.fs-16px {
+  font-size: 16px;
+}
+
+.c-pointer {
+    cursor: pointer;
+  }
+  
+.fw-500 {
+font-weight: 500;
+}
+
+/* width */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+/* Track */
+::-webkit-scrollbar-track {
+  box-shadow: inset 0 0 6px lightblue;
+  border-radius: 10px;
+}
+
+/* Handle */
+::-webkit-scrollbar-thumb {
+  background: lightskyblue;
+  border-radius: 10px;
+}

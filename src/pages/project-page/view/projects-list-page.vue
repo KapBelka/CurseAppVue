@@ -30,9 +30,11 @@
                     class="bi-trash ms-2"
                     style="cursor: pointer"
                   ></i>
-                  <a class="link-opacity-100 c-pointer" @click="openProject(project)">{{
-                    project.name
-                  }}</a>
+                  <a
+                    class="link-opacity-100 c-pointer"
+                    @click="openProject(project)"
+                    >{{ project.name }}</a
+                  >
                 </td>
                 <td>
                   {{ getCreatorUser(project).surname }}

@@ -1,8 +1,10 @@
 import { createApp } from 'vue'
 import App from './App.vue'
 
+import "./assets/normalize.scss";
 import "./assets/_custom-bootstrap.scss"
 import "bootstrap"
+import "./assets/style.scss"
 
 import { createWebHistory, createRouter } from 'vue-router'
 import LoginPage from './pages/login-page/login-page.vue'

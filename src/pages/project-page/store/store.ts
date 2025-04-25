@@ -47,18 +47,19 @@ const store = new Vuex.Store({
 
       state.project.resourceKinds.push(resourceKind);
     },
-    // updateResourceKind(state: State, resourceKind: ResourceKindDto) {
-    //   // var existResourceKind = state.tasks.find(x => x.id == task.id)
-    //   // if (existTask) {
-    //   //   existTask.name = task.name
-    //   //   existTask.duration = task.duration
-    //   //   existTask.needTasksIds = task.needTasksIds
-    //   //   existTask.power = task.power
-    //   // }
-    // },
-    // deleteResourceKind(state: State, resourceKindId: string) {
-    //   //state.resourceKinds = state.tasks.filter(x => x.id != resourceKindId)
-    // },
+    updateResourceKind(state: State, resourceKind: ResourceKindDto) {
+      if (!state.project) return;
+
+      var existResourceKind = state.project.resourceKinds.find(x => x.id == resourceKind.id)
+      if (existResourceKind) {
+        existResourceKind.name = resourceKind.name
+      }
+    },
+    deleteResourceKind(state: State, resourceKindId: string) {
+      if (!state.project) return;
+
+      state.project.resourceKinds = state.project.resourceKinds.splice(state.project.resourceKinds.findIndex(x => x.id != resourceKindId), 1)
+    },
   },
   actions: {
     async loadCurrentUser({ commit }: { commit: Commit }) {
@@ -233,18 +234,34 @@ const store = new Vuex.Store({
         name: payload.name,
       } as ResourceKindDto);
     },
-    // async updateResourceKind(
-    //   { commit }: { commit: Commit },
-    //   resourceKind: ResourceKindDto
-    // ) {
-    //   commit("updateResourceKind", resourceKind);
-    // },
-    // async deleteResourceKind(
-    //   { commit }: { commit: Commit },
-    //   resourceKindId: number
-    // ) {
-    //   commit("deleteResourceKind", resourceKindId);
-    // },
+    async updateResourceKind(
+      { commit, state }: { commit: Commit; state: State },
+      payload: { id: string, name: string }
+    ) {
+      if (!state.project) return;
+
+      // var response = await ProjectPageServices.ProjectService.AddResourceKind(
+      //   state.project.id,
+      //   payload
+      // );
+      // if (response instanceof Error) return;
+
+      //commit("updateResourceKind", response);
+    },
+    async deleteResourceKind(
+      { commit, state }: { commit: Commit; state: State },
+      payload: { resourceKindId: string }
+    ) {
+      if (!state.project) return;
+
+      // var response = await ProjectPageServices.ProjectService.AddResourceKind(
+      //   state.project.id,
+      //   payload
+      // );
+      // if (response instanceof Error) return;
+
+      //commit("deleteResourceKind", resourceKindId);
+    },
   },
 }) as Store<State>;
 

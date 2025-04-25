@@ -39,11 +39,16 @@
           v-for="(resource, i) in resources"
         >
           <div class="input-group">
-            <select v-model="resources[i].projectResourceKindId" class="form-select">
+            <select
+              v-model="resources[i].projectResourceKindId"
+              class="form-select"
+            >
               <option
                 :value="resourceKind.id"
                 :selected="neededTasksIds.includes(resourceKind.id)"
-                v-for="(resourceKind, index) in getAvailableResourceKinds(resource)"
+                v-for="(resourceKind, index) in getAvailableResourceKinds(
+                  resource
+                )"
               >
                 {{ index }} {{ resourceKind.name }}
               </option>
@@ -69,7 +74,7 @@
           ></i>
         </div>
         <a
-          class="link-opacity-100 link-underline link-underline-opacity-0 c-pointer" style="color: #D66434"
+          class="link-opacity-100 link-underline link-underline-opacity-0 c-pointer"
           @click="addNewResource()"
           >+ добавить</a
         >
@@ -84,9 +89,14 @@
             <option
               :value="task.id"
               :selected="neededTasksIds.includes(task.id)"
-              v-for="(task) in tasks.filter(
-                (x) => (x.id == taskId || neededTasksIds.includes(x.id) == false) && x.id != selectedTask?.id
-              ).sort((a, b) => a.order - b.order)"
+              v-for="task in tasks
+                .filter(
+                  (x) =>
+                    (x.id == taskId ||
+                      neededTasksIds.includes(x.id) == false) &&
+                    x.id != selectedTask?.id
+                )
+                .sort((a, b) => a.order - b.order)"
             >
               {{ task.order + 1 }} {{ task.name }}
             </option>
@@ -98,7 +108,7 @@
           ></i>
         </div>
         <a
-          class="link-opacity-100 link-underline link-underline-opacity-0 c-pointer" style="color: #D66434"
+          class="link-opacity-100 link-underline link-underline-opacity-0 c-pointer"
           @click="addNewNeededTask()"
           >+ добавить</a
         >
@@ -118,41 +128,15 @@
     </template>
   </Modal>
 </template>
-<style lang="scss" scoped>
-// .form-label {
-//   font-weight: 700;
-//   font-size: 20px;
-//   color: #fff;
-// }
-
-// .form-control, .input-group, .btn, .form-select {
-//   border-radius: 20px;
-// }
-
-// .btn-plus {
-//   background-color: #D66434; 
-//   font-size: 20px; 
-//   border-radius: 20px;
-//   border-color: #D66434;
-// }
-
-// .btn-plus:hover {
-//   color: #fff;
-//   background-color: #9c4926 !important; 
-//   border-color: #9c4926;
-// }
-
-// .btn-plus:active {
-//   color: #fff;
-//   background-color: #9c4926 !important; 
-//   border-color: #9c4926;
-// }
-</style>
+<style lang="scss" scoped></style>
 <script lang="ts">
 import { defineComponent, PropType } from "vue";
 import Modal from "../../../../components/modal/modal.vue";
 import Storage from "../../store/index";
-import { ResourceKindDto, TaskDto } from "../../../../services/projects/dtos/project-dto";
+import {
+  ResourceKindDto,
+  TaskDto,
+} from "../../../../services/projects/dtos/project-dto";
 
 interface Data {
   isLoadingSubmitButton: boolean;
@@ -177,7 +161,7 @@ export default defineComponent({
       default: false,
     },
     selectedTask: {
-      type: Object as PropType<TaskDto | null>
+      type: Object as PropType<TaskDto | null>,
     },
   },
   components: {
@@ -244,7 +228,9 @@ export default defineComponent({
       this.isLoadingSubmitButton = false;
       this.name = this.selectedTask!.name;
       this.duration = this.selectedTask!.duration;
-      this.neededTasksIds = JSON.parse(JSON.stringify(this.selectedTask!.needProjectTasksIds));
+      this.neededTasksIds = JSON.parse(
+        JSON.stringify(this.selectedTask!.needProjectTasksIds)
+      );
       this.resources = JSON.parse(JSON.stringify(this.selectedTask!.resources));
       this.resourceKindName = null;
     },
