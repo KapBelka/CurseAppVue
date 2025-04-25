@@ -2,6 +2,7 @@ import storage from "./store";
 import ProjectListItemDto from "../../../services/projects/dtos/project-list-item-dto";
 import {
   ProjectDto,
+  ProjectUserDto,
   ResourceKindDto,
   TaskDto,
   TaskResourceDto,
@@ -24,6 +25,10 @@ export default class Storage {
 
   get resourceKinds(): ResourceKindDto[] {
     return storage.state.project?.resourceKinds ?? [];
+  }
+
+  get users(): ProjectUserDto[] {
+    return storage.state.project?.users ?? [];
   }
 
   get projectsList(): ProjectListItemDto[] {

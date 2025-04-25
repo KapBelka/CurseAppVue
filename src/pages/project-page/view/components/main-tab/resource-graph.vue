@@ -42,19 +42,12 @@
 
 <script lang="ts">
 import { defineComponent, PropType } from "vue";
-import storage from "../../store/index";
-import AddTaskModal from "../modals/AddTaskModal.vue";
-import UpdateTaskModal from "../modals/UpdateTaskModal.vue";
-import { TaskRect } from "../../store/taskCalculator";
-import PageContainer from "../../../../components/pageContainer/page-container.vue";
-import { TaskDto } from "../../../../services/projects/dtos/project-dto";
+import storage from "../../../store/index";
+import { TaskRect } from "../../../store/taskCalculator";
+import { TaskDto } from "../../../../../services/projects/dtos/project-dto";
 
 export default defineComponent({
-  components: {
-    AddTaskModal,
-    UpdateTaskModal,
-    PageContainer,
-  },
+  components: {},
   props: {
     rects: { type: Array as PropType<TaskRect[]>, default: [] },
     title: { type: String, required: true },

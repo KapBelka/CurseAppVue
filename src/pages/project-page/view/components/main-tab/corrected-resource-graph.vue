@@ -14,23 +14,20 @@
 </template>
 
 <script lang="ts">
-import { defineComponent } from "vue";
-import storage from "../../store/index";
-import AddTaskModal from "../modals/AddTaskModal.vue";
-import UpdateTaskModal from "../modals/UpdateTaskModal.vue";
+import { defineComponent, PropType } from "vue";
+import storage from "../../../store/index";
 import {
   calculatedTasksRectsNormal,
   TaskRect,
-} from "../../store/taskCalculator";
-import PageContainer from "../../../../components/pageContainer/page-container.vue";
-import { TaskDto } from "../../../../services/projects/dtos/project-dto";
+} from "../../../store/taskCalculator";
+import { TaskDto } from "../../../../../services/projects/dtos/project-dto";
 import ResourceGraph from "./resource-graph.vue";
 
 export default defineComponent({
+  props: {
+    resourceKindId: { type: Object as PropType<string | null>, default: null },
+  },
   components: {
-    AddTaskModal,
-    UpdateTaskModal,
-    PageContainer,
     ResourceGraph,
   },
   data() {
@@ -143,7 +140,19 @@ export default defineComponent({
   watch: {
     tasks: {
       handler: async function () {
-        this.rects = calculatedTasksRectsNormal(this.tasks);
+        this.rects = calculatedTasksRectsNormal(
+          this.tasks,
+          this.resourceKindId
+        );
+      },
+      deep: true,
+    },
+    resourceKindId: {
+      handler: async function () {
+        this.rects = calculatedTasksRectsNormal(
+          this.tasks,
+          this.resourceKindId
+        );
       },
       deep: true,
     },

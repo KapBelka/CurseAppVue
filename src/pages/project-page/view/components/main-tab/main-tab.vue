@@ -1,33 +1,104 @@
 <template>
-  <PageContainer>
-    <ProjectTabs />
-  </PageContainer>
+  <div>
+    <div class="d-flex align-items-center justify-content-between">
+      <!-- <div class="d-flex">
+          <input placeholder="Поиск" class="form-control py-2 search-field" type="text" style="background-color: #4F4752; border-radius: 20px; border: none; width: 400px; color: #fff"></input>
+        </div> -->
+      <div class="d-flex gap-3">
+        <button
+          v-show="storage.project"
+          @click="addTask()"
+          type="button"
+          class="btn btn-outline-primary c-pointer"
+        >
+          Добавить
+        </button>
+        <!-- <button class="py-1 px-3 btn" style="color: #FFFFFF; font-size: 20px; border: 1px solid #FFFFFF; border-radius: 20px; background-color: #ffffff00; box-shadow: 0 0 1px 0px white inset, 0 0 1px 0px white">Изменить</button> -->
+        <!-- <button class="py-1 px-3 btn" style="color: #FFFFFF; font-size: 20px; border: 1px solid #FFFFFF; border-radius: 20px; background-color: #ffffff00; box-shadow: 0 0 1px 0px white inset, 0 0 1px 0px white">Удалить</button> -->
+      </div>
+    </div>
+    <TasksTable />
+    <div class="mt-2" style="width: 200px">
+      <div class="form-label">Вид ресурса</div>
+      <select v-model="selectedResourceKindId" class="form-select">
+        <option :value="null" :selected="selectedResourceKindId == null">
+          Все
+        </option>
+        <option
+          :value="resourceKind.id"
+          :selected="selectedResourceKindId == resourceKind.id"
+          v-for="(resourceKind, index) in resourecKinds"
+        >
+          {{ resourceKind.name }}
+        </option>
+      </select>
+    </div>
+    <div class="mt-3 d-flex gap-3" v-if="projectLoaded">
+      <ResourceGraph title="График Ранний" :rects="earlyRects" />
+      <ResourceGraph title="График Поздний" :rects="lateRects" />
+      <CorrectedResourceGraph :resourceKindId="selectedResourceKindId" />
+    </div>
+  </div>
+  <AddTaskModal
+    :showModal="showAddTaskModal"
+    @close="showAddTaskModal = false"
+  />
 </template>
 
 <script lang="ts">
 import { defineComponent } from "vue";
-import storage from "../store/index";
-import PageContainer from "../../../components/pageContainer/page-container.vue";
-import ProjectTabs from "./components/project-tabs.vue";
+import storage from "../../../store/index";
+import AddTaskModal from "../../modals/AddTaskModal.vue";
+import PageContainer from "../../../../../components/pageContainer/page-container.vue";
+import TasksTable from "./tasks-table.vue";
+import ResourceGraph from "./resource-graph.vue";
+import {
+  calculatedTasksRectsEarly,
+  TaskRect,
+} from "../../../store/taskCalculator";
+import {
+  ResourceKindDto,
+  TaskDto,
+} from "../../../../../services/projects/dtos/project-dto";
+import CorrectedResourceGraph from "./corrected-resource-graph.vue";
 
 export default defineComponent({
   components: {
-    ProjectTabs,
-    PageContainer
+    AddTaskModal,
+    TasksTable,
+    PageContainer,
+    ResourceGraph,
+    CorrectedResourceGraph,
   },
   data() {
     return {
-      storage: storage.getInstance()
+      storage: storage.getInstance(),
+      showAddTaskModal: false,
+      selectedResourceKindId: null as null | string,
     };
   },
   methods: {
+    addTask() {
+      this.showAddTaskModal = true;
+    },
   },
   computed: {
-  },
-  async mounted() {
-    var id = this.$route.params.id as string;
-    await this.storage.loadProject({ id: id });
-  },
+    earlyRects(): TaskRect[] {
+      return calculatedTasksRectsEarly(this.tasks, this.selectedResourceKindId);
+    },
+    lateRects(): TaskRect[] {
+      return calculatedTasksRectsEarly(this.tasks, this.selectedResourceKindId);
+    },
+    tasks(): TaskDto[] {
+      return this.storage.project?.tasks ?? [];
+    },
+    resourecKinds(): ResourceKindDto[] {
+      return this.storage.resourceKinds;
+    },
+    projectLoaded(): boolean {
+      return this.storage.project != null;
+    },
+  }
 });
 </script>
 
