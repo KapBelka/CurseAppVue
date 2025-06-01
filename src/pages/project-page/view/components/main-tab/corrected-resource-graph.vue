@@ -6,6 +6,7 @@
     @mouseleave="onCanvasInteract($event)"
     :rects="rects"
     :hasCursor="hasCursor"
+    :isCorrected="true"
     :horizontalLines="
       taskForMove ? [taskForMove.earlyStart, taskForMove.lateEnd] : []
     "

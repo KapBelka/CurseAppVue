@@ -20,7 +20,8 @@
       <div
         class="graph-div d-flex"
         @scroll="onScroll"
-        style="overflow-x: auto; width: 500px"
+        style="overflow-x: auto; width: 800px"
+        :style="isCorrected ? 'width: 1600px' : 'width: 800px'"
       >
         <canvas
           ref="graphHead"
@@ -55,6 +56,7 @@ import { Tooltip } from "bootstrap";
 export default defineComponent({
   components: {},
   props: {
+    isCorrected: { type: Boolean, default: false },
     rects: { type: Array as PropType<TaskRect[]>, default: [] },
     title: { type: String, required: true },
     hasCursor: { type: Boolean, default: false },
