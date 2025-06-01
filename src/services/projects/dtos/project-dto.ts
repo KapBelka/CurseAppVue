@@ -5,6 +5,7 @@ export interface ProjectDto {
   linksForJoin: LinkForJoinDto[];
   users: ProjectUserDto[];
   tasks: TaskDto[];
+  boardTasks: BoardTaskDto[];
   resourceKinds: ResourceKindDto[];
 }
 
@@ -51,4 +52,14 @@ export interface ResourceKindDto {
   countConstraint: number | null;
   remainingCount: number | null;
   optimalCount: number;
+}
+
+export interface BoardTaskDto {
+  id: string;
+  name: string;
+  description: string | null; 
+  executor: string | null;
+  subtasks: [];
+  status: string;
+  stateId: number;
 }

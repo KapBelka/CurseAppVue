@@ -19,12 +19,12 @@
           @dragstart="onDragStart($event, task.id)"
           @dragend="onDragEnd"
         >
-          <div class="task-header">{{ task.title }}</div>
+          <div class="task-header">{{ task.name }}</div>
           <div class="task-details">
-            <p><strong>Исполнитель:</strong> {{ task.executor }}</p>
-            <p><strong>Описание:</strong> {{ task.description }}</p>
-            <p><strong>Подзадачи:</strong></p>
-            <ul>
+            <p v-if="task.executor"><strong>Исполнитель:</strong> {{ task.executor }}</p>
+            <p v-if="task.description"><strong>Описание:</strong> {{ task.description }}</p>
+            <p v-if="task.subtasks.length"><strong>Подзадачи:</strong></p>
+            <ul v-if="task.subtasks.length">
               <li v-for="sub in task.subtasks" :key="sub">{{ sub }}</li>
             </ul>
           </div>
@@ -36,21 +36,13 @@
 </template>
 
 <script lang="ts">
+import storage from "../store/index";
 import { defineComponent } from "vue";
 import PageContainer from "../../../components/pageContainer/page-container.vue";
-
-interface Task {
-  id: number;
-  title: string;
-  description: string;
-  executor: string;
-  subtasks: string[];
-  statusId: number; // соответствует id статуса
-  stateId: number;
-}
+import { BoardTaskDto } from "../../../services/projects/dtos/project-dto";
 
 interface Status {
-  id: number;
+  id: string;
   name: string;
 }
 
@@ -66,11 +58,12 @@ export default defineComponent({
   },
   data() {
     return {
+      storage: storage.getInstance(),
       statuses: [
-        { id: 1, name: "Сделать" },
-        { id: 2, name: "В работе" },
-        { id: 3, name: "Сделано" },
-        { id: 4, name: "Принято" },
+        { id: 'NotStarted', name: "Сделать" },
+        { id: 'InProcess', name: "В работе" },
+        { id: 'Done', name: "Сделано" },
+        { id: 'Approved', name: "Принято" },
       ] as Status[],
       states: [
         { id: 1, class: "status-wait-reserve", name: "Сделать" },
@@ -79,65 +72,7 @@ export default defineComponent({
         { id: 4, class: "status-default", name: "" },
       ] as TaskState[],
 
-      tasks: [
-        {
-          id: 1,
-          title: "Создать дизайн макеты",
-          description:
-            "Разработать начальные макеты интерфейса для мобильной и десктопной версий проекта.",
-          executor: "Иван Иванов",
-          subtasks: ["Создать wireframes", "Подготовить прототипы"],
-          statusId: 1,
-          stateId: 1,
-        },
-        {
-          id: 2,
-          title: "Настроить бекенд API",
-          description:
-            "Разработать REST API для управления задачами и пользователями.",
-          executor: "Мария Смирнова",
-          subtasks: ["Создать модели данных", "Реализовать эндпоинты CRUD"],
-          statusId: 2,
-          stateId: 2,
-        },
-        {
-          id: 3,
-          title: "Разработать фронтенд интерфейс",
-          description:
-            "Создать пользовательский интерфейс на React с интеграцией API.",
-          executor: "Павел Кузнецов",
-          subtasks: ["Настроить проект", "Создать компоненты задач"],
-          statusId: 3,
-          stateId: 3,
-        },
-        {
-          id: 4,
-          title: "Тестирование системы",
-          description:
-            "Провести юнит-тесты и интеграционное тестирование всех компонентов.",
-          executor: "Елена Федорова",
-          subtasks: [
-            "Написать тесты для API",
-            "Провести нагрузочное тестирование",
-          ],
-          statusId: 4,
-          stateId: 4,
-        },
-        {
-          id: 5,
-          title: "Подготовка документации",
-          description: "Создать документацию по использованию системы и API.",
-          executor: "Алексей Новиков",
-          subtasks: [
-            "Написать руководство пользователя",
-            "Обновить README в репозитории",
-          ],
-          statusId: 4,
-          stateId: 1,
-        },
-      ] as Task[],
-
-      draggedTaskId: null as number | null,
+      draggedTaskId: null as string | null,
 
       // Для хранения информации о месте перетаскивания
       dropIndexMap: {} as Record<number, number>, // исправлено
@@ -145,7 +80,7 @@ export default defineComponent({
   },
 
   methods: {
-    onDragStart(event: any, taskId: number) {
+    onDragStart(event: any, taskId: string) {
       this.draggedTaskId = taskId;
       event.dataTransfer.effectAllowed = "move";
     },
@@ -155,7 +90,7 @@ export default defineComponent({
     },
 
     // Обработка перетаскивания над колонкой
-    onDragOver(event: DragEvent, statusId: number) {
+    onDragOver(event: DragEvent, statusId: string) {
       event.preventDefault();
 
       const columnEl = event.currentTarget as HTMLElement;
@@ -177,15 +112,15 @@ export default defineComponent({
     },
 
     // Обработка сброса задачи
-    onDrop(event: any, statusId: number) {
+    onDrop(event: any, status: string) {
       if (this.draggedTaskId !== null) {
         const task = this.tasks.find((t) => t.id === this.draggedTaskId);
         if (task) {
           // меняем статус задачи
-          task.statusId = statusId;
+          task.status = status;
 
           // получаем индекс вставки для этой колонки
-          const insertIdx = this.dropIndexMap[statusId];
+          const insertIdx = this.dropIndexMap[status];
           if (insertIdx !== undefined) {
             // Удаляем задачу из текущего массива
             const currentTasks = this.tasks.filter((t) => t.id !== task!.id);
@@ -197,25 +132,32 @@ export default defineComponent({
             this.tasks = currentTasks;
 
             // Очистка карты после вставки
-            delete this.dropIndexMap[statusId];
+            delete this.dropIndexMap[status];
           }
         }
       }
     },
 
     // Получение задач по статусу с учетом порядка
-    tasksByStatus(statusId: number): Task[] {
-      return this.tasks.filter((t) => t.statusId === statusId);
+    tasksByStatus(status: string): BoardTaskDto[] {
+      return this.tasks.filter((t) => t.status === status);
     },
 
     // Вспомогательная функция для получения индекса статуса (для селектора)
-    statusIndex(statusId: number): number {
-      return this.statuses.findIndex((s) => s.id === statusId);
+    statusIndex(status: string): number {
+      return this.statuses.findIndex((s) => s.id === status);
     },
   },
 
   computed: {
+    tasks() {
+      return this.storage.tasks
+    }
     // Можно оставить как есть или убрать если не нужно
+  },
+  async mounted() {
+    var id = this.$route.params.id as string;
+    await this.storage.loadProject({ id: id });
   },
 });
 </script>
