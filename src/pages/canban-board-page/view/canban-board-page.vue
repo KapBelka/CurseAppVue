@@ -12,7 +12,7 @@
         <div class="column-header">{{ status.name }}</div>
         <div
           class="task"
-          :class="states?.find((x) => x.id == task.stateId)?.class"
+          :class="states?.find((x) => x.id == task.state)?.class"
           v-for="(task, index) in tasksByStatus(status.id)"
           :key="task.id"
           draggable="true"
@@ -47,7 +47,7 @@ interface Status {
 }
 
 interface TaskState {
-  id: number;
+  id: string;
   name: string;
   class: string;
 }
@@ -66,10 +66,10 @@ export default defineComponent({
         { id: 'Approved', name: "Принято" },
       ] as Status[],
       states: [
-        { id: 1, class: "status-wait-reserve", name: "Сделать" },
-        { id: 2, class: "status-delayed", name: "В работе" },
-        { id: 3, class: "status-completed", name: "Сделано" },
-        { id: 4, class: "status-default", name: "" },
+        { id: 'NotExpired', class: "status-wait-reserve", name: "Сделать" },
+        { id: 'ExpiredOnReserv', class: "status-delayed", name: "В работе" },
+        { id: 'Expired', class: "status-completed", name: "Сделано" },
+        { id: 'Done', class: "status-default", name: "" },
       ] as TaskState[],
 
       draggedTaskId: null as string | null,

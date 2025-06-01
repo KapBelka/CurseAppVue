@@ -61,5 +61,5 @@ export interface BoardTaskDto {
   executor: string | null;
   subtasks: [];
   status: string;
-  stateId: number;
+  state: string;
 }
