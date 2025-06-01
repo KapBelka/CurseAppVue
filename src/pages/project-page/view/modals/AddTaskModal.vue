@@ -89,7 +89,7 @@
               :selected="neededTasksIds.includes(task.id)"
               v-for="(task, index) in tasks.filter(
                 (x) => x.id == taskId || neededTasksIds.includes(x.id) == false
-              ).sort((a, b) => a.order - b.order)""
+              ).sort((a, b) => a.order - b.order)"
             >
               {{ task.order + 1 }} {{ task.name }}
             </option>
