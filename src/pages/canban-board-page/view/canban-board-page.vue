@@ -66,10 +66,10 @@ export default defineComponent({
         { id: 'Approved', name: "Принято" },
       ] as Status[],
       states: [
-        { id: 'NotExpired', class: "status-wait-reserve", name: "Сделать" },
-        { id: 'ExpiredOnReserv', class: "status-delayed", name: "В работе" },
-        { id: 'Expired', class: "status-completed", name: "Сделано" },
-        { id: 'Done', class: "status-default", name: "" },
+        { id: 'ExpiredOnReserv', class: "status-wait-reserve", name: "Сделать" },
+        { id: 'Expired', class: "status-delayed", name: "В работе" },
+        { id: 'Done', class: "status-completed", name: "Сделано" },
+        { id: 'NotExpired', class: "status-default", name: "" },
       ] as TaskState[],
 
       draggedTaskId: null as string | null,
