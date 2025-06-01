@@ -1,7 +1,7 @@
 <template>
   <div ref="modal" class="modal" :class="'modal-' + size">
     <div class="modal-dialog">
-      <div class="modal-content">
+      <div class="modal-content rounded overflow-hidden">
         <div class="modal-header px-4">
           <h5 class="modal-title">{{ title }}</h5>
           <button

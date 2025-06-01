@@ -1,0 +1,116 @@
+/* Общие стили для страницы */
+.canban-board-page {
+  padding: 20px;
+  font-family: 'Arial', sans-serif;
+}
+
+/* Контейнер доски */
+.board {
+  display: flex;
+  gap: 20px;
+  overflow-x: auto;
+}
+
+/* Колонка */
+.column {
+  background-color: #ffffff;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  
+  width: 300px; /* фиксированная ширина */
+  min-width: 300px;
+  max-width: 300px;
+
+  display: flex;
+  flex-direction: column;
+}
+
+.column-header {
+  padding: 16px;
+  font-size: 1.2em;
+  font-weight: bold;
+  background-color: #e2e4e6;
+  border-top-left-radius: 8px;
+  border-top-right-radius: 8px;
+}
+
+/* Задача */
+.task {
+  background-color: #fff;
+  margin: 10px;
+  padding: 12px;
+  border-radius: 6px;
+  box-shadow: inset -1px -1px 3px rgba(0,0,0,0.05),
+              inset 1px 1px 3px rgba(255,255,255,0.7),
+              0 2px 4px rgba(0,0,0,0.1);
+  
+  cursor: grab; /* курсор при перетаскивании */
+  
+  transition: transform ease-in-out .2s, box-shadow ease-in-out .2s;
+}
+.task:hover {
+    box-shadow: inset -1px -1px 4px rgba(0,0,0,0.07),
+                inset 1px 1px 4px rgba(255,255,255,0.8),
+                0 4px 8px rgba(0,0,0,0.15);
+    transform: translateY(-2px);
+}
+.task.dragging {
+    opacity: .5; /* полупрозрачность при перетаскивании */
+    cursor: grabbing; 
+}
+
+/* Заголовок задачи */
+.task-header {
+    font-weight: bold;
+    margin-bottom:8px;
+    font-size:1em;
+}
+
+/* Детали задачи */
+.task-details {
+    font-size: .9em;
+    color:#555;
+}
+
+.task-details p {
+    margin-bottom:4px; 
+}
+
+.task-details ul {
+    padding-left:20px; 
+    margin-top:-4px; 
+}
+
+.task-details li {
+    list-style-type:none; /* убираем маркеры по умолчанию */
+    position: relative; 
+}
+.task-details li::before {
+    content:"•"; 
+    color:#999; 
+    position:absolute; 
+    left:-15px; 
+}
+
+/* Мягкие цвета для статусов */
+.status-wait-reserve {
+  background-color: #FFF8DC; /* светлый бежевый/желтоватый */
+  border: 2px solid #FFA500; /* оранжевый */
+  box-shadow: 0 0 8px rgba(255, 165, 0, 0.4);
+}
+
+.status-delayed {
+  background-color: #F08080; /* мягкий красный/розовый */
+  border: 2px solid #B22222;
+  box-shadow: 0 0 8px rgba(178,34,34,0.4);
+}
+
+.status-completed {
+  background-color: #98FB98; /* мягкий зелёный */
+  border: 2px solid #006400;
+  box-shadow: 0 0 8px rgba(0,100,0,0.4);
+}
+
+/* Для белого состояния (по умолчанию или отдельное) */
+.status-default {
+}

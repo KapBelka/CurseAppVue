@@ -14,8 +14,8 @@
     </div>
     <div class="row mt-3">
       <div class="col-12">
-        <div class="rounded overflow-hidden">
-          <table class="table">
+        <div>
+          <table class="table rounded overflow-hidden">
             <thead>
               <tr>
                 <th scope="col">Проект</th>

@@ -9,6 +9,7 @@ export interface TaskRect {
   x2: number | null
   y1: number | null
   y2: number | null
+  isResourceExceeded: boolean
   resources: number
   upperRects: TaskRect[]
 }
@@ -24,6 +25,7 @@ export function calculatedTasksRectsEarly(calculatedTasks: TaskDto[], resourceKi
       x2: null,
       y1: null,
       y2: null,
+      isResourceExceeded: x.isEarlyResourceExceeded,
       resources: x.resources.filter(y => resourceKindId == null || y.projectResourceKindId == resourceKindId).reduce((s, a) => s += a.count, 0),
       upperRects: []
     } as TaskRect
@@ -39,6 +41,7 @@ export function calculatedTasksRectsEarly(calculatedTasks: TaskDto[], resourceKi
       x2: null,
       y1: null,
       y2: null,
+      isResourceExceeded: x.isEarlyResourceExceeded,
       resources: x.resources.filter(y => resourceKindId == null || y.projectResourceKindId == resourceKindId).reduce((s, a) => s += a.count, 0),
       upperRects: []
     } as TaskRect
@@ -58,6 +61,7 @@ export function calculatedTasksRectsLate(calculatedTasks: TaskDto[], resourceKin
       x2: null,
       y1: null,
       y2: null,
+      isResourceExceeded: x.isLateResourceExceeded,
       resources: x.resources.filter(y => resourceKindId == null || y.projectResourceKindId == resourceKindId).reduce((s, a) => s += a.count, 0),
       upperRects: []
     } as TaskRect
@@ -73,6 +77,7 @@ export function calculatedTasksRectsLate(calculatedTasks: TaskDto[], resourceKin
       x2: null,
       y1: null,
       y2: null,
+      isResourceExceeded: x.isLateResourceExceeded,
       resources: x.resources.filter(y => resourceKindId == null || y.projectResourceKindId == resourceKindId).reduce((s, a) => s += a.count, 0),
       upperRects: []
     } as TaskRect
@@ -92,6 +97,7 @@ export function calculatedTasksRectsNormal(calculatedTasks: TaskDto[], resourceK
       x2: null,
       y1: null,
       y2: null,
+      isResourceExceeded: x.isOptimizedResourceExceeded,
       resources: x.resources.filter(y => resourceKindId == null || y.projectResourceKindId == resourceKindId).reduce((s, a) => s += a.count, 0),
       upperRects: []
     } as TaskRect
@@ -107,6 +113,7 @@ export function calculatedTasksRectsNormal(calculatedTasks: TaskDto[], resourceK
       x2: null,
       y1: null,
       y2: null,
+      isResourceExceeded: x.isOptimizedResourceExceeded,
       resources: x.resources.filter(y => resourceKindId == null || y.projectResourceKindId == resourceKindId).reduce((s, a) => s += a.count, 0),
       upperRects: []
     } as TaskRect
@@ -191,6 +198,7 @@ function getRect(rect: TaskRect, a: number, b: number): TaskRect {
     x2: null,
     y1: null,
     y2: null,
+    isResourceExceeded: rect.isResourceExceeded,
     resources: rect.resources,
     upperRects: []
   }

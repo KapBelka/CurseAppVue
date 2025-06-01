@@ -55,6 +55,14 @@ const store = new Vuex.Store({
         existResourceKind.name = resourceKind.name
       }
     },
+    setResourceKindConstraint(state: State, resourceKind: ResourceKindDto) {
+      if (!state.project) return;
+
+      var existResourceKind = state.project.resourceKinds.find(x => x.id == resourceKind.id)
+      if (existResourceKind) {
+        existResourceKind.name = resourceKind.name
+      }
+    },
     deleteResourceKind(state: State, resourceKindId: string) {
       if (!state.project) return;
 
@@ -187,7 +195,7 @@ const store = new Vuex.Store({
       dispatch("loadProject", { id: state.project.id })
     },
     async updateTaskOptimizedTime(
-      { commit, state }: { commit: Commit; state: State },
+      { commit, state, dispatch }: { commit: Commit; state: State; dispatch: Dispatch },
       payload: {
         id: string;
         start: number;
@@ -202,6 +210,8 @@ const store = new Vuex.Store({
         payload
       );
       if (response instanceof Error) return;
+
+      dispatch("loadProject", { id: state.project.id })
     },
     async deleteTask(
       { commit, state, dispatch }: { commit: Commit; state: State, dispatch: Dispatch },
@@ -247,6 +257,21 @@ const store = new Vuex.Store({
       // if (response instanceof Error) return;
 
       //commit("updateResourceKind", response);
+    },
+    async setResourceKindConstraint(
+      { commit, state, dispatch }: { commit: Commit; state: State, dispatch: Dispatch },
+      payload: { id: string, countConstraint: number | null }
+    ) {
+      if (!state.project) return;
+
+      var response = await ProjectPageServices.ProjectService.SetResourceKindConstraint(
+        state.project.id,
+        payload.id,
+        payload
+      );
+      if (response instanceof Error) return;
+
+      dispatch("loadProject", { id: state.project.id })
     },
     async deleteResourceKind(
       { commit, state }: { commit: Commit; state: State },

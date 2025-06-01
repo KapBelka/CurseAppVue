@@ -35,16 +35,22 @@
           class="d-block"
           ref="graphBody"
         ></canvas>
+        <!-- <i id="img-tooltip" ref="tooltip" data-bs-html="true" data-toggle="tooltip" data-placement="right" title="Tooltip for image" data-animation="false" data-trigger="manual"/> -->
       </div>
     </div>
   </div>
 </template>
-
+<style lang="scss" scoped>
+#img-tooltip {
+  position: absolute;
+}
+</style>
 <script lang="ts">
 import { defineComponent, PropType } from "vue";
 import storage from "../../../store/index";
 import { TaskRect } from "../../../store/taskCalculator";
 import { TaskDto } from "../../../../../services/projects/dtos/project-dto";
+import { Tooltip } from "bootstrap";
 
 export default defineComponent({
   components: {},
@@ -57,6 +63,8 @@ export default defineComponent({
   data() {
     return {
       storage: storage.getInstance(),
+      tooltip: null as Tooltip | null,
+      tooltipOpened: false
     };
   },
   methods: {
@@ -93,7 +101,28 @@ export default defineComponent({
 
         if (rect != null) {
           var task = this.tasks.find((x) => x.id == rect!.id)!;
-          graph.title = task.name;
+          graph.title = task.name
+          // var tooltip = this.$refs.tooltip as HTMLImageElement;
+          // tooltip.title = `${task.name}`;
+          // if (!this.tooltip)
+          //   this.tooltip = new Tooltip(tooltip)
+            
+          // tooltip.style.setProperty("top", `${event.pageY}px`);
+          // tooltip.style.setProperty("left", `${event.pageX}px`);
+          // if (this.tooltipOpened == false) {
+          //   this.tooltipOpened = true;
+          //   this.tooltip.show()
+          // }
+          // else {
+          //   //this.tooltip.setContent({ '.tooltip-inner': tooltip.title })
+          //   this.tooltip.update()
+          // }
+        }
+        else {
+          // if (this.tooltip && this.tooltipOpened == true) {
+          //   this.tooltip.hide()
+          //   this.tooltipOpened = false
+          // }
         }
       }
 
@@ -114,6 +143,8 @@ export default defineComponent({
         let startX = 5;
         let startY = 240;
         ctx.strokeStyle = toUp ? "#4F4752" : "#D66434";
+        if (rect.isResourceExceeded)
+          ctx.strokeStyle = "#8B0000"
 
         rect.x1 = startX + widthFor1 * rect.a;
         rect.y1 = startY - heightFor1 * (rect.resources + toUp);
@@ -127,6 +158,8 @@ export default defineComponent({
           heightFor1 * rect.resources
         );
         ctx.fillStyle = toUp ? "#4F475287" : "#D6643487";
+        if (rect.isResourceExceeded)
+          ctx.fillStyle = "#8B000087"
         ctx.fillRect(
           rect.x1,
           rect.y1,

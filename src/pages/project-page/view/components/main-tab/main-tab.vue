@@ -38,6 +38,54 @@
       <ResourceGraph title="График Поздний" :rects="lateRects" />
       <CorrectedResourceGraph :resourceKindId="selectedResourceKindId" />
     </div>
+    <div class="mt-3">
+      <!-- Сам список -->
+      <ul class="list-group"><li class="list-group-item d-flex align-items-start">
+          <div class="me-3 text-primary fs-4">
+          </div>
+          <div>
+            <h2 class="mb-1">Рекомендации</h2>
+          </div>
+        </li>
+        <li v-if="tasks.filter(x => x.isOptimizedResourceExceeded).length" class="list-group-item d-flex align-items-start">
+          <div class="me-3 text-primary fs-4">
+          </div>
+          <div>
+            <h5 class="mb-1">Задачи превышают выделенные ресурсы</h5>
+            <div>Сместите задачи или выделите больше ресурсов.</div>
+            <div>Список задач, превышающих выделенные ресурсы:</div>
+            <div v-for="(task, index) in tasks.filter(x => x.isOptimizedResourceExceeded)">
+              {{ task.name }}{{ index != tasks.filter(x => x.isOptimizedResourceExceeded).length - 1 ? "," : "" }}
+            </div>
+          </div>
+        </li>
+        <!-- остальные пункты -->
+        <li v-if="resourecKinds.filter(x => x.countConstraint != null && x.optimalCount > x.countConstraint).length" class="list-group-item d-flex align-items-start">
+          <div class="me-3 text-primary fs-4">
+            <!-- Иконка -->
+          </div>
+          <div>
+            <h5 class="mb-1">Возможно выполнить проект в наименьший срок</h5>
+            <div>Проект будет выполнен в срок, если будут ещё выделены следующие ресурсы:</div>
+            <div v-for="(resourceKind, index) in resourecKinds.filter(x => x.countConstraint != null && x.optimalCount > x.countConstraint)">
+              {{ resourceKind.optimalCount - resourceKind.countConstraint! }} {{ resourceKind.name }}{{ index != resourecKinds.filter(x => x.countConstraint != null && x.optimalCount > x.countConstraint).length - 1 ? "," : "" }}
+            </div>
+          </div>
+        </li>
+        <li v-if="resourecKinds.filter(x => x.remainingCount != null && x.remainingCount > 0).length" class="list-group-item d-flex align-items-start">
+          <div class="me-3 text-primary fs-4">
+            <!-- Иконка -->
+          </div>
+          <div>
+            <h5 class="mb-1">Возможно уменьшить выделенные ресурсы</h5>
+            <div>Длительность выполнения проекта не изменится, если уменьшить выделенные ресурсы</div>
+            <div v-for="(resourceKind, index) in resourecKinds.filter(x => x.remainingCount != null && x.remainingCount > 0)">
+              {{ resourceKind.name }} на {{ resourceKind.remainingCount }}{{ index != resourecKinds.filter(x => x.remainingCount != null && x.remainingCount > 0).length - 1 ? "," : "" }}
+            </div>
+          </div>
+        </li>
+      </ul>
+    </div>
   </div>
   <AddTaskModal
     :showModal="showAddTaskModal"
@@ -54,6 +102,7 @@ import TasksTable from "./tasks-table.vue";
 import ResourceGraph from "./resource-graph.vue";
 import {
   calculatedTasksRectsEarly,
+  calculatedTasksRectsLate,
   TaskRect,
 } from "../../../store/taskCalculator";
 import {
@@ -87,7 +136,7 @@ export default defineComponent({
       return calculatedTasksRectsEarly(this.tasks, this.selectedResourceKindId);
     },
     lateRects(): TaskRect[] {
-      return calculatedTasksRectsEarly(this.tasks, this.selectedResourceKindId);
+      return calculatedTasksRectsLate(this.tasks, this.selectedResourceKindId);
     },
     tasks(): TaskDto[] {
       return this.storage.project?.tasks ?? [];
@@ -98,7 +147,7 @@ export default defineComponent({
     projectLoaded(): boolean {
       return this.storage.project != null;
     },
-  }
+  },
 });
 </script>
 

@@ -101,4 +101,8 @@ export default class Storage {
   async addResourceKind(payload: { name: string }) {
     await storage.dispatch("addResourceKind", payload);
   }
+
+  async setResourceKindConstraint(payload: { id, countConstraint }) {
+    await storage.dispatch("setResourceKindConstraint", payload);
+  }
 }

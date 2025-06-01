@@ -12,13 +12,7 @@
         <div class="fw-500 col-4">Название</div>
         <div class="fw-500 col-1">Срок</div>
         <div class="fw-500 col-2">Ресурсы</div>
-        <div class="fw-500 col-4">Предыдущие задачи</div>
-        <!-- <div class="fw-500" style="width: 80px">Раннее начало</div>
-        <div class="fw-500" style="width: 100px">Раннее окончание</div>
-        <div class="fw-500" style="width: 80px">Позднее начало</div>
-        <div class="fw-500" style="width: 100px">Позднее окончание</div>
-        <div class="fw-500" style="width: 90px">Полный резерв</div>
-        <div class="fw-500" style="width: 80px">Свободный резерв</div> -->
+        <div class="fw-500 col-4">Предыдущие задачи <i class="bi bi-info-square float-end c-pointer" @click="openTasksTableModal()"></i></div>
       </div>
       <div
         class="row border-top hover py-1"
@@ -52,39 +46,20 @@
         <div class="col-1">{{ task.duration }}</div>
         <div class="col-2">
           <div v-for="resource in task.resources">{{ resource.count }} {{ resourceKinds.find(x => x.id == resource.projectResourceKindId)?.name }}</div>
-          <!-- {{ task.resources.reduce((a, b) => a + b.count, 0) }} -->
         </div>
         <div class="col-4">
-          <div v-for="task in tasks.filter((x) => task.needProjectTasksIds.includes(x.id))">{{ task.order + 1 }} {{ task.name }}</div>
-          <!-- {{
-            tasks
-              .filter((x) => task.needProjectTasksIds.includes(x.id))
-              .map((x) => x.order + 1)
-              .join("; ")
-          }} -->
+          <div v-for="task in tasks.filter((x) => task.needProjectTasksIds.includes(x.id))">{{ task.order + 1 }} - {{ task.name }}</div>
         </div>
-        <!-- <div style="width: 80px">
-          {{ task.earlyStart }}
-        </div>
-        <div style="width: 100px">
-          {{ task.earlyEnd }}
-        </div>
-        <div style="width: 80px">
-          {{ task.lateStart }}
-        </div>
-        <div style="width: 100px">
-          {{ task.lateEnd }}
-        </div>
-        <div style="width: 90px">
-          {{ task.fullReserv }}
-        </div>
-        <div style="width: 80px">{{ task.reserv }}</div> -->
       </div>
     </div>
     <UpdateTaskModal
       :showModal="showUpdateTaskModal"
       :selectedTask="selectedTask"
       @close="showUpdateTaskModal = false"
+    />
+    <TasksTableModal
+      :showModal="showTasksTableModal"
+      @close="showTasksTableModal = false" 
     />
   </div>
 </template>
@@ -105,15 +80,18 @@ import { defineComponent } from "vue";
 import storage from "../../../store/index";
 import UpdateTaskModal from "../../modals/UpdateTaskModal.vue";
 import { ResourceKindDto, TaskDto } from "../../../../../services/projects/dtos/project-dto";
+import TasksTableModal from "../../modals/TasksTableModal.vue";
 
 export default defineComponent({
   components: {
     UpdateTaskModal,
+    TasksTableModal
   },
   data() {
     return {
       storage: storage.getInstance(),
       showUpdateTaskModal: false,
+      showTasksTableModal: false,
       selectedTask: null as null | TaskDto,
     };
   },
@@ -124,6 +102,9 @@ export default defineComponent({
     updateTask(task: TaskDto) {
       this.showUpdateTaskModal = true;
       this.selectedTask = task;
+    },
+    openTasksTableModal() {
+      this.showTasksTableModal = true;
     },
     async moveUpTask(task: TaskDto) {
       await this.storage.moveUpTask(task);

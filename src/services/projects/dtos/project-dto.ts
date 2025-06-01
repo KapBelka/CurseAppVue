@@ -29,6 +29,9 @@ export interface TaskDto {
   optimizedEnd: number;
   fullReserv: number;
   reserv: number;
+  isEarlyResourceExceeded: boolean;
+  isLateResourceExceeded: boolean;
+  isOptimizedResourceExceeded: boolean;
 }
 
 export interface TaskResourceDto {
@@ -45,4 +48,7 @@ export interface ProjectUserDto {
 export interface ResourceKindDto {
   id: string;
   name: string;
+  countConstraint: number | null;
+  remainingCount: number | null;
+  optimalCount: number;
 }

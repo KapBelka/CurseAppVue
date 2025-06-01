@@ -1,5 +1,6 @@
 <template>
-  <table class="table">
+  <div>
+  <table class="table rounded overflow-hidden">
     <thead>
       <tr>
         <th scope="col">Имя</th>
@@ -14,6 +15,7 @@
       </tr>
     </tbody>
   </table>
+  </div>
 </template>
 
 <script lang="ts">
