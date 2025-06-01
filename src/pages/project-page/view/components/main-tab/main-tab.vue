@@ -36,6 +36,8 @@
     <div class="mt-3 d-flex gap-3" v-if="projectLoaded">
       <ResourceGraph title="График Ранний" :rects="earlyRects" />
       <ResourceGraph title="График Поздний" :rects="lateRects" />
+    </div>
+    <div class="mt-3 d-flex gap-3" v-if="projectLoaded">
       <CorrectedResourceGraph :resourceKindId="selectedResourceKindId" />
     </div>
     <div class="mt-3">
