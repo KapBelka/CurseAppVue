@@ -58,6 +58,7 @@ export default defineComponent({
   props: {
     isCorrected: { type: Boolean, default: false },
     rects: { type: Array as PropType<TaskRect[]>, default: [] },
+    tasks: { type: Array as PropType<TaskDto[]>, default: [] },
     title: { type: String, required: true },
     hasCursor: { type: Boolean, default: false },
     horizontalLines: { type: Array as PropType<number[]>, default: [] },
@@ -66,7 +67,7 @@ export default defineComponent({
     return {
       storage: storage.getInstance(),
       tooltip: null as Tooltip | null,
-      tooltipOpened: false
+      tooltipOpened: false,
     };
   },
   methods: {
@@ -102,13 +103,13 @@ export default defineComponent({
         var rect = this.getRect(this.rects, event.offsetX, event.offsetY);
 
         if (rect != null) {
-          var task = this.tasks.find((x) => x.id == rect!.id)!;
-          graph.title = task.name
+          var task = this.tasks.find((x) => x.id == rect!.id);
+          if (task) graph.title = task.name;
           // var tooltip = this.$refs.tooltip as HTMLImageElement;
           // tooltip.title = `${task.name}`;
           // if (!this.tooltip)
           //   this.tooltip = new Tooltip(tooltip)
-            
+
           // tooltip.style.setProperty("top", `${event.pageY}px`);
           // tooltip.style.setProperty("left", `${event.pageX}px`);
           // if (this.tooltipOpened == false) {
@@ -119,8 +120,7 @@ export default defineComponent({
           //   //this.tooltip.setContent({ '.tooltip-inner': tooltip.title })
           //   this.tooltip.update()
           // }
-        }
-        else {
+        } else {
           // if (this.tooltip && this.tooltipOpened == true) {
           //   this.tooltip.hide()
           //   this.tooltipOpened = false
@@ -140,39 +140,42 @@ export default defineComponent({
     },
     drawRects(rects: TaskRect[], toUp: number, ctx: CanvasRenderingContext2D) {
       for (var rect of rects) {
-        let widthFor1 = 20;
-        let heightFor1 = 20;
-        let startX = 5;
-        let startY = 240;
-        ctx.strokeStyle = toUp ? "#4F4752" : "#D66434";
-        if (rect.isResourceExceeded)
-          ctx.strokeStyle = "#8B0000"
+        if (!rect.hidden) {
+          let widthFor1 = 20;
+          let heightFor1 = 20;
+          let startX = 5;
+          let startY = 240;
+          ctx.strokeStyle = !rect.isCritical ? "#4F4752" : "#D66434";
+          if (rect.isResourceExceeded) ctx.strokeStyle = "#8B0000";
 
-        rect.x1 = startX + widthFor1 * rect.a;
-        rect.y1 = startY - heightFor1 * (rect.resources + toUp);
-        rect.x2 = rect.x1 + widthFor1 * (rect.b - rect.a);
-        rect.y2 = rect.y1 + heightFor1 * rect.resources;
+          rect.x1 = startX + widthFor1 * rect.a;
+          rect.y1 = startY - heightFor1 * (rect.resources + toUp);
+          rect.x2 = rect.x1 + widthFor1 * (rect.b - rect.a);
+          rect.y2 = rect.y1 + heightFor1 * rect.resources;
 
-        ctx.strokeRect(
-          rect.x1,
-          rect.y1,
-          widthFor1 * (rect.b - rect.a),
-          heightFor1 * rect.resources
-        );
-        ctx.fillStyle = toUp ? "#4F475287" : "#D6643487";
-        if (rect.isResourceExceeded)
-          ctx.fillStyle = "#8B000087"
-        ctx.fillRect(
-          rect.x1,
-          rect.y1,
-          widthFor1 * (rect.b - rect.a),
-          heightFor1 * rect.resources
-        );
-        ctx.fillText(
-          `${rect.order + 1}`,
-          startX + widthFor1 * rect.a + (widthFor1 * (rect.b - rect.a)) / 2 - 3,
-          startY - heightFor1 * (rect.resources / 2 + toUp) + 5
-        );
+          ctx.strokeRect(
+            rect.x1,
+            rect.y1,
+            widthFor1 * (rect.b - rect.a),
+            heightFor1 * rect.resources
+          );
+          ctx.fillStyle = !rect.isCritical ? "#4F475287" : "#D6643487";
+          if (rect.isResourceExceeded) ctx.fillStyle = "#8B000087";
+          ctx.fillRect(
+            rect.x1,
+            rect.y1,
+            widthFor1 * (rect.b - rect.a),
+            heightFor1 * rect.resources
+          );
+          ctx.fillText(
+            `${rect.order + 1}`,
+            startX +
+              widthFor1 * rect.a +
+              (widthFor1 * (rect.b - rect.a)) / 2 -
+              3,
+            startY - heightFor1 * (rect.resources / 2 + toUp) + 5
+          );
+        }
 
         this.drawRects(rect.upperRects, toUp + rect.resources, ctx);
       }
@@ -235,11 +238,6 @@ export default defineComponent({
       }
 
       ctx.stroke();
-    },
-  },
-  computed: {
-    tasks(): TaskDto[] {
-      return this.storage.tasks;
     },
   },
   watch: {

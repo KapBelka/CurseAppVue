@@ -5,6 +5,7 @@ import CreateProjectDto from "./dtos/create-project-dto";
 import { ProjectDto } from "./dtos/project-dto";
 import ProjectListItemDto from "./dtos/project-list-item-dto";
 import { SetResourceKindConstraintDto } from "./dtos/set-resource-kind-constraint-dto";
+import { UpdateBoardTaskStatusDto } from "./dtos/update-board-task-status-dto";
 import UpdateTaskDto from "./dtos/update-task-dto";
 import UpdateTaskOptimizedTimeDto from "./dtos/update-task-optimized-time-dto";
 
@@ -55,5 +56,9 @@ export default class ProjectService {
 
     public async DeleteTask(projectId: string, taskId: string): Promise<void | Error> {
         return await Client.Post(`Projects/${projectId}/remove-task/${taskId}`)
+    }
+
+    public async UpdateBoardTaskStatus(projectId: string, taskId: string, dto: UpdateBoardTaskStatusDto) {
+        return await Client.Post(`Projects/${projectId}/board-tasks/${taskId}/update-status`, dto)
     }
 }

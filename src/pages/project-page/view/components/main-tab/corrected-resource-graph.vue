@@ -5,6 +5,7 @@
     @mouseup="onCanvasInteract($event)"
     @mouseleave="onCanvasInteract($event)"
     :rects="rects"
+    :tasks="storage.tasks"
     :hasCursor="hasCursor"
     :isCorrected="true"
     :horizontalLines="
@@ -129,7 +130,8 @@ export default defineComponent({
       this.rects = calculatedTasksRectsNormal(
         this.tasks.filter(
           (x) => x.optimizedStart != null && x.optimizedEnd != null
-        )
+        ),
+        this.resourceKindId
       );
     },
   },

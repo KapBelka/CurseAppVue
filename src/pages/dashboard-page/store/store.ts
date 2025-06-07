@@ -2,7 +2,9 @@ import Vuex from "vuex";
 import { Commit, Store } from "vuex/types/index.js";
 import { ProjectPageServices } from "./services";
 import CurrentUserDto from "../../../services/auth/dtos/current-user-dto";
-import { ProjectDto } from "../../../services/projects/dtos/project-dto";
+import {
+  ProjectDto
+} from "../../../services/projects/dtos/project-dto";
 
 interface State {
   currentUser: CurrentUserDto | null;
@@ -14,7 +16,7 @@ const store = new Vuex.Store({
   state(): State {
     return {
       currentUser: null,
-      project: null,
+      project: null
     } as State;
   },
   mutations: {
@@ -23,46 +25,9 @@ const store = new Vuex.Store({
     },
     setProject(state: State, project: ProjectDto) {
       state.project = project;
-    },
-    setTaskStatus(
-      state: State,
-      payload: { taskId: string; status: string; order: number }
-    ) {
-      var task = state.project?.boardTasks.find((x) => x.id == payload.taskId);
-      if (!task) return;
-
-      task.status = payload.status;
-      var tasksByStatus =
-        state.project?.boardTasks.filter((x) => x.status == payload.status) ??
-        [];
-
-      var i = 0;
-      tasksByStatus
-        .filter((x) => x.id != task!.id)
-        .forEach((x) => {
-          if (i == payload.order) i++;
-
-          x.order = i;
-          i++;
-        });
-
-      task.order = payload.order ?? tasksByStatus.length;
-    },
+    }
   },
   actions: {
-    async updateTaskStatus(
-      { commit, state }: { commit: Commit; state: State },
-      payload: { taskId: string; status: string; order: number }
-    ) {
-      if (!state.project)
-        return;
-
-      var response = ProjectPageServices.ProjectService.UpdateBoardTaskStatus(state.project.id, payload.taskId, payload)
-      if (response instanceof Error)
-        return;
-
-      commit("setTaskStatus", payload);
-    },
     async loadCurrentUser({ commit }: { commit: Commit }) {
       var response = await ProjectPageServices.AuthService.GetCurrentUser();
       if (response instanceof Error) return;
@@ -77,7 +42,7 @@ const store = new Vuex.Store({
       if (response instanceof Error) return;
 
       commit("setProject", response);
-    },
+    }
   },
 }) as Store<State>;
 

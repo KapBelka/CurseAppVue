@@ -1,6 +1,7 @@
 export interface ProjectDto {
   id: string;
   name: string;
+  startTime: Date;
   creatorUserId: string;
   linksForJoin: LinkForJoinDto[];
   users: ProjectUserDto[];
@@ -56,10 +57,16 @@ export interface ResourceKindDto {
 
 export interface BoardTaskDto {
   id: string;
+  projectTaskId: string | null;
   name: string;
   description: string | null; 
   executor: string | null;
   subtasks: [];
   status: string;
   state: string;
+  order: number;
+  planTimeBegin: Date | null;
+  planTimeEnd: Date | null;
+  factTimeBegin: Date | null;
+  factTimeEnd: Date | null;
 }

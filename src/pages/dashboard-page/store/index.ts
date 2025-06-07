@@ -12,11 +12,11 @@ export default class Storage {
   }
 
   get tasks() {
-    return storage.state.project?.boardTasks?.sort((a, b) => a.order - b.order) ?? [];
+    return storage.state.project?.tasks?.sort((a, b) => a.order - b.order) ?? [];
   }
 
-  async updateTaskStatus(payload: { taskId: string, status: string, order: number }) {
-    await storage.dispatch("updateTaskStatus", payload);
+  get project() {
+    return storage.state.project;
   }
 
   async loadCurrentUser() {

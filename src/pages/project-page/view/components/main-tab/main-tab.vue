@@ -27,15 +27,15 @@
         <option
           :value="resourceKind.id"
           :selected="selectedResourceKindId == resourceKind.id"
-          v-for="(resourceKind, index) in resourecKinds"
+          v-for="(resourceKind) in resourecKinds"
         >
           {{ resourceKind.name }}
         </option>
       </select>
     </div>
     <div class="mt-3 d-flex gap-3" v-if="projectLoaded">
-      <ResourceGraph title="График Ранний" :rects="earlyRects" />
-      <ResourceGraph title="График Поздний" :rects="lateRects" />
+      <ResourceGraph :tasks="tasks" title="График Ранний" :rects="earlyRects" />
+      <ResourceGraph :tasks="tasks" title="График Поздний" :rects="lateRects" />
     </div>
     <div class="mt-3 d-flex gap-3" v-if="projectLoaded">
       <CorrectedResourceGraph :resourceKindId="selectedResourceKindId" />

@@ -1,37 +1,52 @@
 <template>
   <PageContainer>
-  <div class="canban-board-page">
-    <div class="board">
-      <div
-        class="column"
-        v-for="status in statuses"
-        :key="status.id"
-        @dragover.prevent="onDragOver($event, status.id)"
-        @drop="onDrop($event, status.id)"
-      >
-        <div class="column-header">{{ status.name }}</div>
+    <div class="canban-board-page">
+      <div class="board">
         <div
-          class="task"
-          :class="states?.find((x) => x.id == task.state)?.class"
-          v-for="(task, index) in tasksByStatus(status.id)"
-          :key="task.id"
-          draggable="true"
-          @dragstart="onDragStart($event, task.id)"
-          @dragend="onDragEnd"
+          class="column"
+          v-for="status in statuses"
+          :key="status.id"
+          @dragover.prevent="onDragOver($event, status.id)"
+          @drop="onDrop($event, status.id)"
         >
-          <div class="task-header">{{ task.name }}</div>
-          <div class="task-details">
-            <p v-if="task.executor"><strong>Исполнитель:</strong> {{ task.executor }}</p>
-            <p v-if="task.description"><strong>Описание:</strong> {{ task.description }}</p>
-            <p v-if="task.subtasks.length"><strong>Подзадачи:</strong></p>
-            <ul v-if="task.subtasks.length">
-              <li v-for="sub in task.subtasks" :key="sub">{{ sub }}</li>
-            </ul>
+          <div class="column-header">{{ status.name }}</div>
+          <div
+            class="task"
+            :class="states?.find((x) => x.id == task.state)?.class"
+            v-for="task in tasksByStatus(status.id)"
+            :key="task.id"
+            :ref="'task-' + task.id"
+            draggable="true"
+            @dragstart="onDragStart($event, task.id)"
+            @dragend="onDragEnd"
+          >
+            <div class="task-header">
+              {{ task.name }}
+              <div
+                class="float-end c-pointer"
+                @dragend.stop=""
+                @dragstart.stop=""
+                @click.stop="console.log('hui')"
+              >
+                <i class="bi-pencil" />
+              </div>
+            </div>
+            <div class="task-details">
+              <p v-if="task.executor">
+                <strong>Исполнитель:</strong> {{ task.executor }}
+              </p>
+              <p v-if="task.description">
+                <strong>Описание:</strong> {{ task.description }}
+              </p>
+              <!-- <p v-if="task.subtasks.length"><strong>Подзадачи:</strong></p>
+              <ul v-if="task.subtasks.length">
+                <li v-for="sub in task.subtasks" :key="sub">{{ sub }}</li>
+              </ul> -->
+            </div>
           </div>
         </div>
       </div>
     </div>
-  </div>
   </PageContainer>
 </template>
 
@@ -54,28 +69,29 @@ interface TaskState {
 
 export default defineComponent({
   components: {
-    PageContainer
+    PageContainer,
   },
   data() {
     return {
       storage: storage.getInstance(),
       statuses: [
-        { id: 'NotStarted', name: "Сделать" },
-        { id: 'InProcess', name: "В работе" },
-        { id: 'Done', name: "Сделано" },
-        { id: 'Approved', name: "Принято" },
+        { id: "NotStarted", name: "Сделать" },
+        { id: "InProcess", name: "В работе" },
+        { id: "Done", name: "Сделано" },
+        { id: "Approved", name: "Принято" },
       ] as Status[],
       states: [
-        { id: 'ExpiredOnReserv', class: "status-wait-reserve", name: "Сделать" },
-        { id: 'Expired', class: "status-delayed", name: "В работе" },
-        { id: 'Done', class: "status-completed", name: "Сделано" },
-        { id: 'NotExpired', class: "status-default", name: "" },
+        {
+          id: "ExpiredOnReserv",
+          class: "status-wait-reserve",
+          name: "Сделать",
+        },
+        { id: "Expired", class: "status-delayed", name: "В работе" },
+        { id: "Done", class: "status-completed", name: "Сделано" },
+        { id: "NotExpired", class: "status-default", name: "" },
       ] as TaskState[],
-
       draggedTaskId: null as string | null,
-
-      // Для хранения информации о месте перетаскивания
-      dropIndexMap: {} as Record<number, number>, // исправлено
+      insertIndex: null as number | null,
     };
   },
 
@@ -84,66 +100,42 @@ export default defineComponent({
       this.draggedTaskId = taskId;
       event.dataTransfer.effectAllowed = "move";
     },
-
     onDragEnd() {
       this.draggedTaskId = null;
     },
-
-    // Обработка перетаскивания над колонкой
-    onDragOver(event: DragEvent, statusId: string) {
+    onDragOver(event: DragEvent, status: string) {
       event.preventDefault();
 
-      const columnEl = event.currentTarget as HTMLElement;
-      const tasksEls = Array.from(
-        columnEl.querySelectorAll(".task")
-      ) as HTMLElement[];
+      // Получаем список задач в колонке
+      const tasksInStatus = this.tasksByStatus(status);
 
-      let insertIndex = tasksEls.length; // по умолчанию вставляем в конец
+      // Получаем координаты курсора
+      const cursorY = event.clientY;
 
-      for (let i = 0; i < tasksEls.length; i++) {
-        const rect = tasksEls[i].getBoundingClientRect();
-        if (event.clientY < rect.top + rect.height / 2) {
+      // Ищем задачу, над которой находится курсор
+      let insertIndex = tasksInStatus.length; // по умолчанию — вставка в конец
+
+      for (let i = 0; i < tasksInStatus.length; i++) {
+        const taskElement = this.$refs[
+          `task-${tasksInStatus[i].id}`
+        ]![0] as HTMLElement;
+        const rect = taskElement.getBoundingClientRect();
+        if (cursorY < rect.top + rect.height / 2) {
           insertIndex = i;
           break;
         }
       }
 
-      this.dropIndexMap[statusId] = insertIndex;
+      this.insertIndex = insertIndex;
     },
-
-    // Обработка сброса задачи
-    onDrop(event: any, status: string) {
+    async onDrop(event: any, status: string) {
       if (this.draggedTaskId !== null) {
-        const task = this.tasks.find((t) => t.id === this.draggedTaskId);
-        if (task) {
-          // меняем статус задачи
-          task.status = status;
-
-          // получаем индекс вставки для этой колонки
-          const insertIdx = this.dropIndexMap[status];
-          if (insertIdx !== undefined) {
-            // Удаляем задачу из текущего массива
-            const currentTasks = this.tasks.filter((t) => t.id !== task!.id);
-
-            // Вставляем задачу в нужную позицию
-            currentTasks.splice(insertIdx, 0, task);
-
-            // Обновляем массив задач так чтобы порядок соответствовал новому порядку
-            this.tasks = currentTasks;
-
-            // Очистка карты после вставки
-            delete this.dropIndexMap[status];
-          }
-        }
+        await this.storage.updateTaskStatus({ taskId: this.draggedTaskId, status: status, order: this.insertIndex ?? this.tasksByStatus(status).length })
       }
     },
-
-    // Получение задач по статусу с учетом порядка
     tasksByStatus(status: string): BoardTaskDto[] {
       return this.tasks.filter((t) => t.status === status);
     },
-
-    // Вспомогательная функция для получения индекса статуса (для селектора)
     statusIndex(status: string): number {
       return this.statuses.findIndex((s) => s.id === status);
     },
@@ -151,9 +143,8 @@ export default defineComponent({
 
   computed: {
     tasks() {
-      return this.storage.tasks
-    }
-    // Можно оставить как есть или убрать если не нужно
+      return this.storage.tasks;
+    },
   },
   async mounted() {
     var id = this.$route.params.id as string;
