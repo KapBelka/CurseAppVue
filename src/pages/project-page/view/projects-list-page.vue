@@ -4,7 +4,7 @@
       <div class="col-12">
         <div class="d-flex justify-content-end">
           <button
-            class="btn btn-outline-primary"
+            class="btn btn-primary text-white"
             @click="showCreateProjectModal = true"
           >
             Создать
@@ -20,26 +20,36 @@
               <tr>
                 <th scope="col">Проект</th>
                 <th scope="col">Владелец</th>
+                <th scope="col">Статус</th>
+                <th scope="col">Время начала</th>
+                <th scope="col">Время окончания</th>
               </tr>
             </thead>
             <tbody>
               <tr v-for="project in storage.projectsList">
                 <td>
-                  <i
-                    @click="onDeleteProjectClick(project)"
-                    class="bi-trash ms-2"
-                    style="cursor: pointer"
-                  ></i>
                   <a
                     class="link-opacity-100 c-pointer"
                     @click="openProject(project)"
                     >{{ project.name }}</a
                   >
+                  <i
+                    @click="onDeleteProjectClick(project)"
+                    class="bi-trash ms-2"
+                    style="cursor: pointer"
+                  ></i>
                 </td>
                 <td>
                   {{ getCreatorUser(project).surname }}
                   {{ getCreatorUser(project).name[0] }}.
                 </td>
+                <td>
+                  <span v-if="project.stage == ProjectStage.Planning" class="badge bg-primary">Планирование</span>
+                  <span v-if="project.stage == ProjectStage.InProcess" class="badge bg-warning text-dark">В процессе</span>
+                  <span v-if="project.stage == ProjectStage.Done" class="badge bg-success">Завершен</span>
+                </td>
+                <td><span v-if="project.startTime">{{ moment(project.startTime).format("DD.MM.yyyy") }}</span></td>
+                <td><snap v-if="project.endTime">{{ moment(project.endTime).format("DD.MM.yyyy") }}</snap></td>
               </tr>
             </tbody>
           </table>
@@ -68,15 +78,17 @@
 import { defineComponent } from "vue";
 import storage from "../store/index";
 import PageContainer from "../../../components/pageContainer/page-container.vue";
-import ProjectListItemDto from "../../../services/projects/dtos/project-list-item-dto";
+import ProjectListItemDto, { ProjectStage } from "../../../services/projects/dtos/project-list-item-dto";
 import CreateProjectModal from "./modals/CreateProjectModal.vue";
 import ConfirmModal from "./../../../components/modal/confirm-modal.vue";
+import moment from "moment";
 
 interface Data {
   storage: storage;
   showCreateProjectModal: boolean;
   showConfirmDeleteProjectModal: boolean;
   selectedProject: ProjectListItemDto | null;
+  ProjectStage: typeof ProjectStage;
 }
 
 export default defineComponent({
@@ -87,6 +99,7 @@ export default defineComponent({
   },
   data() {
     return {
+      ProjectStage: ProjectStage,
       storage: storage.getInstance(),
       showCreateProjectModal: false,
       showConfirmDeleteProjectModal: false,
@@ -94,6 +107,9 @@ export default defineComponent({
     } as Data;
   },
   methods: {
+    moment(date: Date) {
+      return moment(date);
+    },
     getCreatorUser(project: ProjectListItemDto) {
       return project.users.find((x) => x.id == project.creatorUserId)!;
     },

@@ -4,13 +4,16 @@
     @mousedown="onCanvasInteract($event)"
     @mouseup="onCanvasInteract($event)"
     @mouseleave="onCanvasInteract($event)"
+    @rectsDrawed="setRectsWithCoord"
     :rects="rects"
     :tasks="storage.tasks"
     :hasCursor="hasCursor"
     :isCorrected="true"
+    :canDragged="!hasCursor && !taskForMove"
     :horizontalLines="
       taskForMove ? [taskForMove.earlyStart, taskForMove.lateEnd] : []
     "
+    style="width: 1700px;"
     title="График Скорректированный"
   />
 </template>
@@ -37,11 +40,15 @@ export default defineComponent({
       storage: storage.getInstance(),
       taskForMove: null as null | TaskDto,
       rects: [] as TaskRect[],
+      rectsWithCoord: [] as TaskRect[],
       lastMouseX: null as number | null,
       hasCursor: false as boolean,
     };
   },
   methods: {
+    setRectsWithCoord(rects: TaskRect[]) {
+      this.rectsWithCoord = rects
+    },
     getRect(rects: TaskRect[], x: number, y: number): TaskRect | null {
       this.rects.find(
         (i) => x >= i.x1! && x <= i.x2! && y >= i.y1! && y <= i.y2!
@@ -67,8 +74,7 @@ export default defineComponent({
     },
     onCanvasInteract(event: MouseEvent) {
       if (event.type == "mousedown") {
-        var rect = this.getRect(this.rects, event.offsetX, event.offsetY);
-
+        var rect = this.getRect(this.rectsWithCoord, event.offsetX, event.offsetY);
         if (rect != null) {
           var task = this.tasks.find((x) => x.id == rect!.id)!;
           if (task.isCritical == false) this.taskForMove = task;
@@ -92,11 +98,11 @@ export default defineComponent({
       }
 
       if (event.type == "mousemove") {
-        var rect = this.getRect(this.rects, event.offsetX, event.offsetY);
+        var rect = this.getRect(this.rectsWithCoord, event.offsetX, event.offsetY);
 
         if (rect != null) {
           var task = this.tasks.find((x) => x.id == rect!.id)!;
-          if (task.isCritical == false) this.hasCursor = true;
+          if (rect.isCritical == false) this.hasCursor = true;
           else this.hasCursor = false;
         } else {
           this.hasCursor = false;
@@ -126,7 +132,7 @@ export default defineComponent({
           }
         }
       }
-
+      
       this.rects = calculatedTasksRectsNormal(
         this.tasks.filter(
           (x) => x.optimizedStart != null && x.optimizedEnd != null

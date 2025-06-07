@@ -1,8 +1,7 @@
 <template>
-  <ul class="nav nav-tabs" id="project-tabs" role="tablist">
-    <li class="nav-item" role="presentation">
+  <div class="btn-group" id="project-tabs" role="tablist">
       <button
-        class="nav-link active"
+        class="btn btn-dark active"
         id="main-tab"
         data-bs-toggle="tab"
         data-bs-target="#main"
@@ -13,10 +12,8 @@
       >
         Главная
       </button>
-    </li>
-    <li class="nav-item" role="presentation">
       <button
-        class="nav-link"
+        class="btn btn-dark"
         id="resources-tab"
         data-bs-toggle="tab"
         data-bs-target="#resources"
@@ -27,10 +24,8 @@
       >
         Ресурсы
       </button>
-    </li>
-    <li class="nav-item" role="presentation">
       <button
-        class="nav-link"
+        class="btn btn-dark"
         id="users-tab"
         data-bs-toggle="tab"
         data-bs-target="#users"
@@ -41,8 +36,7 @@
       >
         Участники
       </button>
-    </li>
-  </ul>
+  </div>
   <div class="tab-content mt-2" id="myTabContent">
     <div
       class="tab-pane fade show active"

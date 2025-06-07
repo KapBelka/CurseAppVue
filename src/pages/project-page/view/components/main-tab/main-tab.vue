@@ -9,7 +9,7 @@
           v-show="storage.project"
           @click="addTask()"
           type="button"
-          class="btn btn-outline-primary c-pointer"
+          class="btn btn-primary text-white c-pointer"
         >
           Добавить
         </button>
@@ -27,62 +27,138 @@
         <option
           :value="resourceKind.id"
           :selected="selectedResourceKindId == resourceKind.id"
-          v-for="(resourceKind) in resourecKinds"
+          v-for="resourceKind in resourecKinds"
         >
           {{ resourceKind.name }}
         </option>
       </select>
     </div>
-    <div class="mt-3 d-flex gap-3" v-if="projectLoaded">
-      <ResourceGraph :tasks="tasks" title="График Ранний" :rects="earlyRects" />
-      <ResourceGraph :tasks="tasks" title="График Поздний" :rects="lateRects" />
+    <div class="mt-3 row" v-if="projectLoaded">
+      <div class="col-6">
+        <ResourceGraph
+          :tasks="tasks"
+          title="График Ранний"
+          :rects="earlyRects"
+        />
+      </div>
+      <div class="col-6">
+        <ResourceGraph
+          :tasks="tasks"
+          title="График Поздний"
+          :rects="lateRects"
+        />
+      </div>
     </div>
-    <div class="mt-3 d-flex gap-3" v-if="projectLoaded">
+    <div class="mt-3" v-if="projectLoaded">
       <CorrectedResourceGraph :resourceKindId="selectedResourceKindId" />
     </div>
     <div class="mt-3">
       <!-- Сам список -->
-      <ul class="list-group"><li class="list-group-item d-flex align-items-start">
-          <div class="me-3 text-primary fs-4">
-          </div>
+      <ul class="list-group">
+        <li class="list-group-item d-flex align-items-start">
+          <div class="me-3 text-primary fs-4"></div>
           <div>
             <h2 class="mb-1">Рекомендации</h2>
           </div>
         </li>
-        <li v-if="tasks.filter(x => x.isOptimizedResourceExceeded).length" class="list-group-item d-flex align-items-start">
-          <div class="me-3 text-primary fs-4">
-          </div>
+        <li
+          v-if="tasks.filter((x) => x.isOptimizedResourceExceeded).length"
+          class="list-group-item d-flex align-items-start"
+        >
+          <div class="me-3 text-primary fs-4"></div>
           <div>
             <h5 class="mb-1">Задачи превышают выделенные ресурсы</h5>
             <div>Сместите задачи или выделите больше ресурсов.</div>
             <div>Список задач, превышающих выделенные ресурсы:</div>
-            <div v-for="(task, index) in tasks.filter(x => x.isOptimizedResourceExceeded)">
-              {{ task.name }}{{ index != tasks.filter(x => x.isOptimizedResourceExceeded).length - 1 ? "," : "" }}
+            <div
+              v-for="(task, index) in tasks.filter(
+                (x) => x.isOptimizedResourceExceeded
+              )"
+            >
+              {{ task.name
+              }}{{
+                index !=
+                tasks.filter((x) => x.isOptimizedResourceExceeded).length - 1
+                  ? ","
+                  : ""
+              }}
             </div>
           </div>
         </li>
         <!-- остальные пункты -->
-        <li v-if="resourecKinds.filter(x => x.countConstraint != null && x.optimalCount > x.countConstraint).length" class="list-group-item d-flex align-items-start">
+        <li
+          v-if="
+            resourecKinds.filter(
+              (x) =>
+                x.countConstraint != null && x.optimalCount > x.countConstraint
+            ).length
+          "
+          class="list-group-item d-flex align-items-start"
+        >
           <div class="me-3 text-primary fs-4">
             <!-- Иконка -->
           </div>
           <div>
             <h5 class="mb-1">Возможно выполнить проект в наименьший срок</h5>
-            <div>Проект будет выполнен в срок, если будут ещё выделены следующие ресурсы:</div>
-            <div v-for="(resourceKind, index) in resourecKinds.filter(x => x.countConstraint != null && x.optimalCount > x.countConstraint)">
-              {{ resourceKind.optimalCount - resourceKind.countConstraint! }} {{ resourceKind.name }}{{ index != resourecKinds.filter(x => x.countConstraint != null && x.optimalCount > x.countConstraint).length - 1 ? "," : "" }}
+            <div>
+              Проект будет выполнен в срок, если будут ещё выделены следующие
+              ресурсы:
+            </div>
+            <div
+              v-for="(resourceKind, index) in resourecKinds.filter(
+                (x) =>
+                  x.countConstraint != null &&
+                  x.optimalCount > x.countConstraint
+              )"
+            >
+              {{ resourceKind.optimalCount - resourceKind.countConstraint! }}
+              {{ resourceKind.name
+              }}{{
+                index !=
+                resourecKinds.filter(
+                  (x) =>
+                    x.countConstraint != null &&
+                    x.optimalCount > x.countConstraint
+                ).length -
+                  1
+                  ? ","
+                  : ""
+              }}
             </div>
           </div>
         </li>
-        <li v-if="resourecKinds.filter(x => x.remainingCount != null && x.remainingCount > 0).length" class="list-group-item d-flex align-items-start">
+        <li
+          v-if="
+            resourecKinds.filter(
+              (x) => x.remainingCount != null && x.remainingCount > 0
+            ).length
+          "
+          class="list-group-item d-flex align-items-start"
+        >
           <div class="me-3 text-primary fs-4">
             <!-- Иконка -->
           </div>
           <div>
             <h5 class="mb-1">Возможно уменьшить выделенные ресурсы</h5>
-            <div>Длительность выполнения проекта не изменится, если уменьшить выделенные ресурсы</div>
-            <div v-for="(resourceKind, index) in resourecKinds.filter(x => x.remainingCount != null && x.remainingCount > 0)">
-              {{ resourceKind.name }} на {{ resourceKind.remainingCount }}{{ index != resourecKinds.filter(x => x.remainingCount != null && x.remainingCount > 0).length - 1 ? "," : "" }}
+            <div>
+              Длительность выполнения проекта не изменится, если уменьшить
+              выделенные ресурсы
+            </div>
+            <div
+              v-for="(resourceKind, index) in resourecKinds.filter(
+                (x) => x.remainingCount != null && x.remainingCount > 0
+              )"
+            >
+              {{ resourceKind.name }} на {{ resourceKind.remainingCount
+              }}{{
+                index !=
+                resourecKinds.filter(
+                  (x) => x.remainingCount != null && x.remainingCount > 0
+                ).length -
+                  1
+                  ? ","
+                  : ""
+              }}
             </div>
           </div>
         </li>

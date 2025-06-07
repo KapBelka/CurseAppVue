@@ -69,4 +69,5 @@ export interface BoardTaskDto {
   planTimeEnd: Date | null;
   factTimeBegin: Date | null;
   factTimeEnd: Date | null;
+  reservTime: number;
 }

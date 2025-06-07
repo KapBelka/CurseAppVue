@@ -66,12 +66,12 @@
 
 <style scoped lang="scss">
 .tasks-table {
-  border-radius: 20px;
+  border-radius: 6px;
   background-color: white;
 }
 
 .tasks-table .hover:hover {
-  background-color: lighten(#D66434, 25%);
+  background-color: #EAE4F4;
 }
 </style>
 

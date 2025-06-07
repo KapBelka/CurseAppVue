@@ -12,7 +12,7 @@
           <div class="column-header">{{ status.name }}</div>
           <div
             class="task"
-            :class="states?.find((x) => x.id == task.state)?.class"
+            :class="states?.find((x) => x.id == getState(task))?.class"
             v-for="task in tasksByStatus(status.id)"
             :key="task.id"
             :ref="'task-' + task.id"
@@ -38,6 +38,12 @@
               <p v-if="task.description">
                 <strong>Описание:</strong> {{ task.description }}
               </p>
+              <p v-if="task.planTimeBegin">
+                <strong>План:</strong> <p>{{ moment(task.planTimeBegin).format("DD.MM.yyyy HH:mm") }} <span v-if="task.planTimeEnd"> - {{ moment(task.planTimeEnd).format("DD.MM.yyyy HH:mm") }}</span></p>
+              </p>
+              <p v-if="task.factTimeBegin">
+                <strong>Факт:</strong> <p>{{ moment(task.factTimeBegin).format("DD.MM.yyyy HH:mm") }} <span v-if="task.factTimeEnd"> - {{ moment(task.factTimeEnd).format("DD.MM.yyyy HH:mm") }}</span></p>
+              </p>
               <!-- <p v-if="task.subtasks.length"><strong>Подзадачи:</strong></p>
               <ul v-if="task.subtasks.length">
                 <li v-for="sub in task.subtasks" :key="sub">{{ sub }}</li>
@@ -55,6 +61,7 @@ import storage from "../store/index";
 import { defineComponent } from "vue";
 import PageContainer from "../../../components/pageContainer/page-container.vue";
 import { BoardTaskDto } from "../../../services/projects/dtos/project-dto";
+import moment from "moment";
 
 interface Status {
   id: string;
@@ -96,6 +103,41 @@ export default defineComponent({
   },
 
   methods: {
+    moment(date: Date | null) {
+      return moment(date);
+    },
+    getState(task: BoardTaskDto) {
+      var planTimeBegin = moment(task.planTimeBegin)
+      var planTimeEnd = moment(task.planTimeEnd)
+      var now = moment();
+
+      if (task.status == "NotStarted") {
+        if (planTimeBegin < now) {
+          if (planTimeBegin.add(task.reservTime, "days") > now)
+            return "ExpiredOnReserv"
+          return "Expired"
+        }
+        return "NotExpired"
+      }
+      else if (task.status == "InProcess") {
+        if (planTimeEnd < now) {
+          if (planTimeEnd.add(task.reservTime, "days") > now)
+            return "ExpiredOnReserv"
+          return "Expired"
+        }
+        return "NotExpired"
+      }
+      else if (task.status == "Done" || task.status == "Approved") {
+        var factTimeEnd = moment(task.factTimeEnd)
+
+        if (factTimeEnd > planTimeEnd) {
+          if (planTimeEnd.add(task.reservTime, "days") > factTimeEnd)
+            return "ExpiredOnReserv"
+          return "Expired"
+        }
+        return "Done"
+      }
+    },
     onDragStart(event: any, taskId: string) {
       this.draggedTaskId = taskId;
       event.dataTransfer.effectAllowed = "move";

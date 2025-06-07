@@ -1,57 +1,47 @@
 <template>
   <div
-    style="
-      background-color: #4f4752;
-      border-radius: 20px;
-      font-size: 16px;
-      flex: 1;
-    "
+    style="background-color: #4f4752; border-radius: 6px; font-size: 16px"
     :class="{ 'c-pointer': hasCursor }"
   >
     <div class="px-4 py-2" style="color: #fff">{{ title }}</div>
     <div
+      ref="graphContainer"
       class="px-3"
       style="
         background-color: #fff;
-        border-radius: 20px;
+        border-radius: 6px;
         box-shadow: 0 -8px 12px #00000029;
       "
     >
-      <div
-        class="graph-div d-flex"
-        @scroll="onScroll"
-        style="overflow-x: auto; width: 800px"
-        :style="isCorrected ? 'width: 1600px' : 'width: 800px'"
-      >
-        <canvas
-          ref="graphHead"
-          class="d-block"
-          style="position: sticky; left: 0"
-        ></canvas
-        ><canvas
-          @mousemove="onCanvasMove($event)"
-          @mousedown="$emit('mousedown', $event)"
-          @mouseup="$emit('mouseup', $event)"
-          @mouseleave="$emit('mouseleave', $event)"
-          class="d-block"
-          ref="graphBody"
-        ></canvas>
-        <!-- <i id="img-tooltip" ref="tooltip" data-bs-html="true" data-toggle="tooltip" data-placement="right" title="Tooltip for image" data-animation="false" data-trigger="manual"/> -->
-      </div>
+      <canvas
+        @wheel.stop.prevent="onWheel($event)"
+        @mousemove="onCanvasMove($event)"
+        @mousedown="
+          $emit('mousedown', $event);
+          onMouseDown($event);
+        "
+        @mouseup="
+          $emit('mouseup', $event);
+          onMouseUpOrLeave();
+        "
+        @mouseleave="
+          $emit('mouseleave', $event);
+          onMouseUpOrLeave();
+        "
+        @scroll.stop.prevent=""
+        class="d-block"
+        ref="graphBody"
+      ></canvas>
     </div>
   </div>
 </template>
-<style lang="scss" scoped>
-#img-tooltip {
-  position: absolute;
-}
-</style>
+<style lang="scss" scoped></style>
 <script lang="ts">
 import { defineComponent, PropType } from "vue";
 import storage from "../../../store/index";
 import { TaskRect } from "../../../store/taskCalculator";
 import { TaskDto } from "../../../../../services/projects/dtos/project-dto";
-import { Tooltip } from "bootstrap";
+import deepcopy from "deepcopy";
 
 export default defineComponent({
   components: {},
@@ -61,18 +51,63 @@ export default defineComponent({
     tasks: { type: Array as PropType<TaskDto[]>, default: [] },
     title: { type: String, required: true },
     hasCursor: { type: Boolean, default: false },
+    canDragged: { type: Boolean, default: true },
     horizontalLines: { type: Array as PropType<number[]>, default: [] },
   },
   data() {
     return {
       storage: storage.getInstance(),
-      tooltip: null as Tooltip | null,
-      tooltipOpened: false,
+      localRects: [] as TaskRect[],
+      scale: 1,
+      lastCursorX: 0,
+      lastCursorY: 0,
+      xOffset: 0,
+      yOffset: 0,
+      isDragged: false,
     };
   },
+  computed: {
+    widthPer1() {
+      return 20 * this.scale;
+    },
+    heightPer1() {
+      return 20 * this.scale;
+    },
+    height() {
+      return 280;
+    },
+    width() {
+      return (this.$refs.graphContainer as HTMLDivElement).clientWidth - 30; //20 * this.rects.reduce((a, b) => (b.b > a ? b.b : a), 0) + 100
+    },
+    graphOffsetY() {
+      return 40;
+    },
+    graphOffsetX() {
+      return 40;
+    },
+  },
   methods: {
+    onWheel(event: WheelEvent) {
+      if (event.deltaY > 0) {
+        this.scale -= 0.1;
+      } else if (event.deltaY < 0) {
+        this.scale += 0.1;
+      }
+
+      if (this.scale > 2) this.scale = 2;
+
+      if (this.scale < 0.4) this.scale = 0.4;
+    },
+    onMouseDown(event: MouseEvent) {
+      this.lastCursorX = event.offsetX;
+      this.lastCursorY = event.offsetY;
+      this.isDragged = true;
+    },
+    onMouseUpOrLeave() {
+      this.isDragged = false;
+    },
     getRect(rects: TaskRect[], x: number, y: number): TaskRect | null {
-      this.rects.find(
+      this.localRects.find(
         (i) => x >= i.x1! && x <= i.x2! && y >= i.y1! && y <= i.y2!
       );
 
@@ -100,32 +135,22 @@ export default defineComponent({
       if (!graph) return;
 
       if (event.type == "mousemove") {
-        var rect = this.getRect(this.rects, event.offsetX, event.offsetY);
+        var rect = this.getRect(this.localRects, event.offsetX, event.offsetY);
 
         if (rect != null) {
           var task = this.tasks.find((x) => x.id == rect!.id);
           if (task) graph.title = task.name;
-          // var tooltip = this.$refs.tooltip as HTMLImageElement;
-          // tooltip.title = `${task.name}`;
-          // if (!this.tooltip)
-          //   this.tooltip = new Tooltip(tooltip)
-
-          // tooltip.style.setProperty("top", `${event.pageY}px`);
-          // tooltip.style.setProperty("left", `${event.pageX}px`);
-          // if (this.tooltipOpened == false) {
-          //   this.tooltipOpened = true;
-          //   this.tooltip.show()
-          // }
-          // else {
-          //   //this.tooltip.setContent({ '.tooltip-inner': tooltip.title })
-          //   this.tooltip.update()
-          // }
-        } else {
-          // if (this.tooltip && this.tooltipOpened == true) {
-          //   this.tooltip.hide()
-          //   this.tooltipOpened = false
-          // }
         }
+
+        if (this.isDragged && this.canDragged) {
+          this.xOffset += event.offsetX - this.lastCursorX;
+          if (this.xOffset > 0) this.xOffset = 0;
+          this.yOffset += event.offsetY - this.lastCursorY;
+          if (this.yOffset < 0) this.yOffset = 0;
+        }
+
+        this.lastCursorX = event.offsetX;
+        this.lastCursorY = event.offsetY;
       }
 
       this.$emit("mousemove", event);
@@ -141,39 +166,50 @@ export default defineComponent({
     drawRects(rects: TaskRect[], toUp: number, ctx: CanvasRenderingContext2D) {
       for (var rect of rects) {
         if (!rect.hidden) {
-          let widthFor1 = 20;
-          let heightFor1 = 20;
-          let startX = 5;
-          let startY = 240;
+          let startX = this.graphOffsetX + this.xOffset;
+          let startY = 280 - this.graphOffsetY + this.yOffset;
+
           ctx.strokeStyle = !rect.isCritical ? "#4F4752" : "#D66434";
           if (rect.isResourceExceeded) ctx.strokeStyle = "#8B0000";
 
-          rect.x1 = startX + widthFor1 * rect.a;
-          rect.y1 = startY - heightFor1 * (rect.resources + toUp);
-          rect.x2 = rect.x1 + widthFor1 * (rect.b - rect.a);
-          rect.y2 = rect.y1 + heightFor1 * rect.resources;
+          rect.x1 = startX + this.widthPer1 * rect.a;
+          rect.y1 = startY - this.heightPer1 * (rect.resources + toUp);
+          rect.x2 = rect.x1 + this.widthPer1 * (rect.b - rect.a);
+          rect.y2 = rect.y1 + this.heightPer1 * rect.resources;
+          if (rect.x1 < this.graphOffsetX) {
+            rect.x1 = this.graphOffsetX;
+            if (rect.x2 < this.graphOffsetX) {
+              this.drawRects(rect.upperRects, toUp + rect.resources, ctx);
+              continue;
+            }
+          }
+          if (rect.y2 > 280 - this.graphOffsetY) {
+            rect.y2 = 280 - this.graphOffsetY;
+            if (rect.y1 > 280 - this.graphOffsetY) {
+              this.drawRects(rect.upperRects, toUp + rect.resources, ctx);
+              continue;
+            }
+          }
 
           ctx.strokeRect(
             rect.x1,
             rect.y1,
-            widthFor1 * (rect.b - rect.a),
-            heightFor1 * rect.resources
+            rect.x2 - rect.x1,
+            rect.y2 - rect.y1
           );
           ctx.fillStyle = !rect.isCritical ? "#4F475287" : "#D6643487";
           if (rect.isResourceExceeded) ctx.fillStyle = "#8B000087";
-          ctx.fillRect(
-            rect.x1,
-            rect.y1,
-            widthFor1 * (rect.b - rect.a),
-            heightFor1 * rect.resources
-          );
+          ctx.fillRect(rect.x1, rect.y1, rect.x2 - rect.x1, rect.y2 - rect.y1);
+          var fontScale = rect.b - rect.a;
+          if (fontScale > 1) {
+            fontScale = 1;
+          }
+          ctx.font = `${14 * this.scale * fontScale}px serif`;
           ctx.fillText(
             `${rect.order + 1}`,
-            startX +
-              widthFor1 * rect.a +
-              (widthFor1 * (rect.b - rect.a)) / 2 -
-              3,
-            startY - heightFor1 * (rect.resources / 2 + toUp) + 5
+            (rect.x1 + rect.x2) / 2 -
+              (String(rect.order + 1).length * 14 * this.scale * fontScale) / 5,
+            (rect.y1 + rect.y2) / 2 + (14 * this.scale * fontScale) / 2
           );
         }
 
@@ -182,79 +218,132 @@ export default defineComponent({
     },
     drawGraph(canvas: HTMLCanvasElement, rects: TaskRect[]) {
       var ctx = canvas.getContext("2d")!;
-      canvas.height = 280;
-      canvas.width = 20 * rects.reduce((a, b) => (b.b > a ? b.b : a), 0) + 100;
+
+      canvas.height = this.height;
+      canvas.width = this.width;
 
       ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-      ctx.strokeStyle = "#4F4752";
-      ctx.lineWidth = 0.4;
-      ctx.beginPath();
+      ctx.strokeStyle = "#cccccc"; // цвет линий сетки
+      ctx.lineWidth = 0.5;
 
-      ctx.font = "14px serif";
+      for (
+        let y = canvas.height - this.graphOffsetY;
+        y >= -this.yOffset;
+        y -= this.heightPer1
+      ) {
+        if (y + this.yOffset > canvas.height - this.graphOffsetY)
+          continue;
 
-      for (var i = 0; i < canvas.height / 20 - 1; i++) {
-        ctx.moveTo(5, i * 20);
-        ctx.lineTo(canvas.width - 20, i * 20);
+        ctx.beginPath();
+        ctx.moveTo(this.graphOffsetX, y + this.yOffset);
+        ctx.lineTo(canvas.width, y + this.yOffset);
+        ctx.stroke();
+        ctx.closePath();
       }
 
-      ctx.stroke();
+      for (
+        let y = canvas.height - this.graphOffsetY;
+        y >= -this.yOffset;
+        y -= this.heightPer1
+      ) {
+        if (y + this.yOffset <= canvas.height - this.graphOffsetY)
+          ctx.fillText(
+            `${Math.round(
+              (canvas.height - this.graphOffsetY) / this.heightPer1 -
+                y / this.heightPer1
+            )}`,
+            20,
+            y + this.yOffset
+          );
+      }
 
-      ctx.closePath();
+      // Вертикальные линии
+      for (let x = this.graphOffsetX; x <= canvas.width - this.xOffset; x += this.widthPer1) {
+        if (x + this.xOffset < this.graphOffsetX)
+          continue;
 
-      ctx.beginPath();
+        ctx.beginPath();
+        ctx.moveTo(x + this.xOffset, 0);
+        ctx.lineTo(x + this.xOffset, canvas.height - this.graphOffsetY);
+        ctx.stroke();
+        ctx.closePath();
+      }
 
-      ctx.strokeStyle = "#D66434";
+      for (let x = this.graphOffsetX; x <= canvas.width - this.xOffset; x += this.widthPer1) {
+        if (x + this.xOffset >= this.graphOffsetX)
+          ctx.fillText(
+            `${Math.round((x - this.graphOffsetX) / this.widthPer1)}`,
+            x + this.xOffset,
+            canvas.height - 20
+          );
+      }
+      
+      let text = "Ресурсы";
+      for (var i = 0; i < text.length; i++) {
+        ctx.fillText(text[i], 0, canvas.height / 2 - (text.length * 10 / 2) + i*10);
+      }
+      
+      let text2 = "Время";
+      ctx.fillText(text2, canvas.width / 2 - (text.length * 10 / 2), canvas.height - 5);
+
+      ctx.strokeStyle = "#000"; // цвет линий сетки
       ctx.lineWidth = 1;
-
       for (var line of this.horizontalLines) {
-        ctx.moveTo(5 + line * 20, 0);
-        ctx.lineTo(5 + line * 20, canvas.height - 40);
+        ctx.beginPath();
+        ctx.moveTo(this.graphOffsetX + line * this.widthPer1 * this.scale, 0);
+        ctx.lineTo(
+          this.graphOffsetX + line * this.widthPer1 * this.scale,
+          canvas.height - this.graphOffsetY
+        );
+        ctx.stroke();
+        ctx.closePath();
       }
 
-      for (var i = 0; i < canvas.width / 20 - 2; i++) {
-        ctx.fillText(`${i}`, 2 + 20 * i, 265);
-      }
-
-      ctx.stroke();
-
-      ctx.closePath();
+      // Далее идет ваш существующий код для рисования рамок и текста...
 
       this.drawRects(rects, 0, ctx);
-    },
-    drawHead(canvas: HTMLCanvasElement) {
-      var ctx = canvas.getContext("2d")!;
-      canvas.height = 280;
-      canvas.width = 20;
-      ctx.font = "14px serif";
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-      ctx.fillStyle = "#ffffff";
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-      ctx.fillStyle = "#000000";
-      for (var i = 0; i < canvas.height / 20 - 2; i++) {
-        ctx.fillText(`${canvas.height / 20 - i - 3}`, 5, 25 + 20 * i);
-      }
-
-      ctx.stroke();
+      this.$emit("rectsDrawed", rects);
     },
   },
   watch: {
     rects: {
       handler: async function () {
         this.$nextTick(function () {
+          this.localRects = deepcopy(this.rects);
+
           var graphBody = this.$refs.graphBody as HTMLCanvasElement;
           if (!graphBody) return;
 
-          this.drawGraph(graphBody, this.rects);
-
-          var graphHead = this.$refs.graphHead as HTMLCanvasElement;
-          if (!graphHead) return;
-          this.drawHead(graphHead);
+          this.drawGraph(graphBody, this.localRects);
         });
       },
       deep: true,
+    },
+    xOffset() {
+      this.$nextTick(function () {
+        var graphBody = this.$refs.graphBody as HTMLCanvasElement;
+        if (!graphBody) return;
+
+        this.drawGraph(graphBody, this.localRects);
+      });
+    },
+    yOffset() {
+      this.$nextTick(function () {
+        var graphBody = this.$refs.graphBody as HTMLCanvasElement;
+        if (!graphBody) return;
+
+        this.drawGraph(graphBody, this.localRects);
+      });
+    },
+    scale() {
+      this.$nextTick(function () {
+        var graphBody = this.$refs.graphBody as HTMLCanvasElement;
+        if (!graphBody) return;
+
+        this.drawGraph(graphBody, this.localRects);
+      });
     },
   },
 });
