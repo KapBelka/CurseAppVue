@@ -1,5 +1,5 @@
 import Vuex from "vuex";
-import { Commit, Store } from "vuex/types/index.js";
+import { Commit, Dispatch, Store } from "vuex/types/index.js";
 import { ProjectPageServices } from "./services";
 import CurrentUserDto from "../../../services/auth/dtos/current-user-dto";
 import { ProjectDto } from "../../../services/projects/dtos/project-dto";
@@ -78,6 +78,16 @@ const store = new Vuex.Store({
 
       commit("setProject", response);
     },
+    async endProject({ commit, state, dispatch }: { commit: Commit; state: State, dispatch: Dispatch }) {
+      if (!state.project) return;
+
+      var response = await ProjectPageServices.ProjectService.EndProject(
+        state.project.id
+      );
+      if (response instanceof Error) return;
+
+      dispatch("loadProject", { id: state.project.id })
+    }
   },
 }) as Store<State>;
 

@@ -1,7 +1,11 @@
+import { ProjectStage } from "./project-list-item-dto";
+
 export interface ProjectDto {
   id: string;
   name: string;
-  startTime: Date;
+  startTime: Date | null;
+  endTime: Date | null;
+  stage: ProjectStage;
   creatorUserId: string;
   linksForJoin: LinkForJoinDto[];
   users: ProjectUserDto[];

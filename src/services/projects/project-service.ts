@@ -61,4 +61,12 @@ export default class ProjectService {
     public async UpdateBoardTaskStatus(projectId: string, taskId: string, dto: UpdateBoardTaskStatusDto) {
         return await Client.Post(`Projects/${projectId}/board-tasks/${taskId}/update-status`, dto)
     }
+
+    public async StartProject(projectId, date: Date) {
+        return await Client.Post(`Projects/${projectId}/start`, { startTime: date })
+    }
+
+    public async EndProject(projectId) {
+        return await Client.Post(`Projects/${projectId}/end`)
+    }
 }

@@ -15,6 +15,10 @@ export default class Storage {
     return storage.state.project?.boardTasks?.sort((a, b) => a.order - b.order) ?? [];
   }
 
+  get project() {
+    return storage.state.project;
+  }
+
   async updateTaskStatus(payload: { taskId: string, status: string, order: number }) {
     await storage.dispatch("updateTaskStatus", payload);
   }
@@ -25,5 +29,8 @@ export default class Storage {
 
   async loadProject(payload: {id: string}) {
     await storage.dispatch("loadProject", payload);
+  }
+  async endProject() {
+    await storage.dispatch("endProject")
   }
 }

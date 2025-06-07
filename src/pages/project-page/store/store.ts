@@ -287,6 +287,17 @@ const store = new Vuex.Store({
 
       //commit("deleteResourceKind", resourceKindId);
     },
+    async startProject({ commit, state, dispatch }: { commit: Commit; state: State, dispatch: Dispatch }, payload: { startDate: Date}) {
+      if (!state.project) return;
+
+      var response = await ProjectPageServices.ProjectService.StartProject(
+        state.project.id,
+        payload.startDate
+      );
+      if (response instanceof Error) return;
+
+      dispatch("loadProject", { id: state.project.id })
+    }
   },
 }) as Store<State>;
 

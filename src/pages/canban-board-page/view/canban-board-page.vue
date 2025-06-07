@@ -1,5 +1,10 @@
 <template>
   <PageContainer>
+    <div class="d-flex my-3 align-items-end gap-2">
+      <div>
+        <button class="btn btn-primary" :disabled="storage.project?.stage != ProjectStage.InProcess" @click="endProject">Завершить</button>
+      </div>
+    </div>
     <div class="canban-board-page">
       <div class="board">
         <div
@@ -16,7 +21,7 @@
             v-for="task in tasksByStatus(status.id)"
             :key="task.id"
             :ref="'task-' + task.id"
-            draggable="true"
+            :draggable="storage.project?.stage == ProjectStage.InProcess"
             @dragstart="onDragStart($event, task.id)"
             @dragend="onDragEnd"
           >
@@ -62,6 +67,7 @@ import { defineComponent } from "vue";
 import PageContainer from "../../../components/pageContainer/page-container.vue";
 import { BoardTaskDto } from "../../../services/projects/dtos/project-dto";
 import moment from "moment";
+import { ProjectStage } from "../../../services/projects/dtos/project-list-item-dto";
 
 interface Status {
   id: string;
@@ -81,6 +87,7 @@ export default defineComponent({
   data() {
     return {
       storage: storage.getInstance(),
+      ProjectStage: ProjectStage,
       statuses: [
         { id: "NotStarted", name: "Сделать" },
         { id: "InProcess", name: "В работе" },
@@ -103,6 +110,9 @@ export default defineComponent({
   },
 
   methods: {
+    endProject() {
+      this.storage.endProject()
+    },
     moment(date: Date | null) {
       return moment(date);
     },
@@ -139,6 +149,8 @@ export default defineComponent({
       }
     },
     onDragStart(event: any, taskId: string) {
+      if ((this.storage.project?.stage != ProjectStage.InProcess))
+        return;
       this.draggedTaskId = taskId;
       event.dataTransfer.effectAllowed = "move";
     },

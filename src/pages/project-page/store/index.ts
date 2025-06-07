@@ -58,6 +58,10 @@ export default class Storage {
   async deleteProject(payload: { id: string }) {
     await storage.dispatch("deleteProject", payload);
   }
+  
+  async startProject(payload: { startDate: string}) {
+    await storage.dispatch("startProject", payload)
+  }
 
   async addTask(payload: {
     name: string;

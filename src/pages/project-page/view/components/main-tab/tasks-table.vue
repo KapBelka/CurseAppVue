@@ -21,6 +21,7 @@
       >
         <div class="col-1">
           {{ task.order + 1 }}
+          <template v-if="storage.project?.stage == ProjectStage.Planning">
           <i
             @click="updateTask(task)"
             class="bi-pencil ms-2"
@@ -41,6 +42,7 @@
             class="bi bi-caret-down-square ms-1"
             style="cursor: pointer"
           ></i>
+          </template>
         </div>
         <div class="col-4">{{ task.name }}</div>
         <div class="col-1">{{ task.duration }}</div>
@@ -81,6 +83,7 @@ import storage from "../../../store/index";
 import UpdateTaskModal from "../../modals/UpdateTaskModal.vue";
 import { ResourceKindDto, TaskDto } from "../../../../../services/projects/dtos/project-dto";
 import TasksTableModal from "../../modals/TasksTableModal.vue";
+import { ProjectStage } from "../../../../../services/projects/dtos/project-list-item-dto";
 
 export default defineComponent({
   components: {
@@ -90,6 +93,7 @@ export default defineComponent({
   data() {
     return {
       storage: storage.getInstance(),
+      ProjectStage: ProjectStage,
       showUpdateTaskModal: false,
       showTasksTableModal: false,
       selectedTask: null as null | TaskDto,

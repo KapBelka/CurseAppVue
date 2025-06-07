@@ -12,29 +12,31 @@
           <td class="py-3">{{ resourceKind.name }}</td>
           <td class="align-content-center">
             <div class="d-flex align-items-center">
-            <input
-              v-if="selectedResourceKind?.id == resourceKind.id"
-              v-model="inputValue"
-              type="text"
-              class="form-control"
-              style="width: 100px;"
-              id="constraintInput"
-            />
-            <span v-else>{{
-              resourceKind.countConstraint ?? "Не ограничено"
-            }}</span>
-            <i
-              v-if="selectedResourceKind?.id != resourceKind.id"
-              @click="editResourceKind(resourceKind)"
-              class="bi-pencil ms-2"
-              style="cursor: pointer"
-            ></i>
-            <i
-              v-else
-              @click="setResourceKindConstraint()"
-              class="bi-check ms-2"
-              style="cursor: pointer"
-            ></i>
+              <input
+                v-if="selectedResourceKind?.id == resourceKind.id"
+                v-model="inputValue"
+                type="text"
+                class="form-control"
+                style="width: 100px"
+                id="constraintInput"
+              />
+              <span v-else>{{
+                resourceKind.countConstraint ?? "Не ограничено"
+              }}</span>
+              <template v-if="storage.project?.stage == ProjectStage.Planning">
+                <i
+                  v-if="selectedResourceKind?.id != resourceKind.id"
+                  @click="editResourceKind(resourceKind)"
+                  class="bi-pencil ms-2"
+                  style="cursor: pointer"
+                ></i>
+                <i
+                  v-else
+                  @click="setResourceKindConstraint()"
+                  class="bi-check ms-2"
+                  style="cursor: pointer"
+                ></i>
+              </template>
             </div>
           </td>
         </tr>
@@ -47,6 +49,7 @@
 import { defineComponent } from "vue";
 import storage from "../../../store/index";
 import { ResourceKindDto } from "../../../../../services/projects/dtos/project-dto";
+import { ProjectStage } from "../../../../../services/projects/dtos/project-list-item-dto";
 
 export default defineComponent({
   components: {},
@@ -55,6 +58,7 @@ export default defineComponent({
       storage: storage.getInstance(),
       selectedResourceKind: null as ResourceKindDto | null,
       inputValue: 0 as Number,
+      ProjectStage: ProjectStage,
     };
   },
   methods: {

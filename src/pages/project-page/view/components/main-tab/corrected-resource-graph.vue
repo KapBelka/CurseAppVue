@@ -27,6 +27,7 @@ import {
 } from "../../../store/taskCalculator";
 import { TaskDto } from "../../../../../services/projects/dtos/project-dto";
 import ResourceGraph from "./resource-graph.vue";
+import { ProjectStage } from "../../../../../services/projects/dtos/project-list-item-dto";
 
 export default defineComponent({
   props: {
@@ -73,6 +74,9 @@ export default defineComponent({
       return findedRect;
     },
     onCanvasInteract(event: MouseEvent) {
+      if (this.storage.project?.stage != ProjectStage.Planning)
+        return;
+      
       if (event.type == "mousedown") {
         var rect = this.getRect(this.rectsWithCoord, event.offsetX, event.offsetY);
         if (rect != null) {

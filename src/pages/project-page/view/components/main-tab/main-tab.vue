@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div class="d-flex align-items-center justify-content-between">
+    <div v-if="storage.project?.stage == ProjectStage.Planning" class="d-flex align-items-center justify-content-between">
       <!-- <div class="d-flex">
           <input placeholder="Поиск" class="form-control py-2 search-field" type="text" style="background-color: #4F4752; border-radius: 20px; border: none; width: 400px; color: #fff"></input>
         </div> -->
@@ -15,6 +15,22 @@
         </button>
         <!-- <button class="py-1 px-3 btn" style="color: #FFFFFF; font-size: 20px; border: 1px solid #FFFFFF; border-radius: 20px; background-color: #ffffff00; box-shadow: 0 0 1px 0px white inset, 0 0 1px 0px white">Изменить</button> -->
         <!-- <button class="py-1 px-3 btn" style="color: #FFFFFF; font-size: 20px; border: 1px solid #FFFFFF; border-radius: 20px; background-color: #ffffff00; box-shadow: 0 0 1px 0px white inset, 0 0 1px 0px white">Удалить</button> -->
+      </div>
+    </div>
+    <div class="d-flex my-3 align-items-end gap-2">
+      <div class="form-group">
+        <label for="projectName" class="text-white">Время начала проекта</label>
+        <input
+          type="date"
+          :disabled="storage.project?.stage != ProjectStage.Planning"
+          v-model="startDate"
+          class="datepicker form-control"
+          id="projectName"
+          placeholder="Время начала проекта"
+        />
+      </div>
+      <div v-if="storage.project?.stage == ProjectStage.Planning">
+        <button class="btn btn-primary" :disabled="!canStartProject" @click="startProject">Начать</button>
       </div>
     </div>
     <TasksTable />
@@ -188,6 +204,8 @@ import {
   TaskDto,
 } from "../../../../../services/projects/dtos/project-dto";
 import CorrectedResourceGraph from "./corrected-resource-graph.vue";
+import moment from "moment";
+import { ProjectStage } from "../../../../../services/projects/dtos/project-list-item-dto";
 
 export default defineComponent({
   components: {
@@ -199,7 +217,9 @@ export default defineComponent({
   },
   data() {
     return {
+      ProjectStage: ProjectStage,
       storage: storage.getInstance(),
+      startDate: null as string | null,
       showAddTaskModal: false,
       selectedResourceKindId: null as null | string,
     };
@@ -208,8 +228,26 @@ export default defineComponent({
     addTask() {
       this.showAddTaskModal = true;
     },
+    startProject() {
+      if (!this.startDate)
+        return;
+
+      if (moment(this.startDate) < moment())
+        return;
+
+      this.storage.startProject({ startDate: this.startDate });
+    }
   },
   computed: {
+    canStartProject() {
+      if (!this.startDate)
+        return false;
+
+      if (moment(this.startDate) < moment())
+        return false;
+
+      return true;
+    },
     earlyRects(): TaskRect[] {
       return calculatedTasksRectsEarly(this.tasks, this.selectedResourceKindId);
     },
@@ -225,7 +263,20 @@ export default defineComponent({
     projectLoaded(): boolean {
       return this.storage.project != null;
     },
+    projectStartTime() {
+      return this.storage.project?.startTime
+    }
   },
+  watch: {
+    projectStartTime() {
+      if (!this.storage.project?.startTime)
+        return;
+
+      this.startDate = moment(this.storage.project?.startTime ?? null).format("yyyy-MM-DD")
+    }
+  },
+  mounted() {
+  }
 });
 </script>
 
