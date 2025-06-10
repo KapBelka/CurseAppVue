@@ -64,7 +64,7 @@ export default class ProjectService {
     }
 
     public async StartProject(projectId, date: Date) {
-        return await Client.Post(`Projects/${projectId}/start`, moment(date).format("YYYY-MM-DDTHH:mm:ssz"))
+        return await Client.Post(`Projects/${projectId}/start`, { startTime: date })
     }
 
     public async EndProject(projectId) {
