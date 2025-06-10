@@ -334,7 +334,7 @@ function getRectsRecursive(
   let includesSourceRects = sourceRects.filter(
     (x) =>
       (x.a <= b && x.a >= a) || (x.b >= a && x.b <= b) || (a >= x.a && b <= x.b)
-  ).sort((a, b) => (a === b)? 0 : a? 1 : -1);
+  );
   if (!includesSourceRects.length) return rects;
 
   let rectWithMaxLenght: TaskRect | null = null;
@@ -347,6 +347,9 @@ function getRectsRecursive(
     return s;
   }, 0);
   if (!rectWithMaxLenght) return rects;
+  
+  if (includesSourceRects.some(x => x.isCritical))
+    rectWithMaxLenght = includesSourceRects.find(x => x.isCritical)!
 
   let upperRect = getRect(rectWithMaxLenght, a, b);
   upperRect.upperRects = getRectsRecursive(
