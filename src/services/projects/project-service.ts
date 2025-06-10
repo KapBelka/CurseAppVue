@@ -1,3 +1,4 @@
+import moment from "moment";
 import Client from "../../api/client"
 import AddResourceKindDto from "./dtos/add-resource-kind-dto";
 import AddTaskDto from "./dtos/add-task-dto";
@@ -63,7 +64,7 @@ export default class ProjectService {
     }
 
     public async StartProject(projectId, date: Date) {
-        return await Client.Post(`Projects/${projectId}/start`, { startTime: date })
+        return await Client.Post(`Projects/${projectId}/start`, { startTime: moment(date).format("YYYY-MM-DDTHH:mm:ssz") })
     }
 
     public async EndProject(projectId) {
