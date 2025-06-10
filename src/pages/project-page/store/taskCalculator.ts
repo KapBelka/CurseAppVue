@@ -288,7 +288,7 @@ export function calculatedTasksRectsByFactTime(
       } as TaskRect;
     });
 
-  return calculateTasksRects(sourceRects.concat(foundationRects), [
+  return calculateTasksRects(foundationRects.concat(sourceRects), [
     {
       id: "",
       order: 0,
