@@ -109,14 +109,14 @@
     </template>
     <template v-slot:footer>
       <button
-        class="btn btn-outline-primary c-pointer btn-add ms-2"
+        class="btn btn-primary c-pointer btn-add ms-2"
         @click="onClose"
       >
         Отмена
       </button>
       <button
         :disabled="!canSave"
-        class="btn btn-outline-primary c-pointer btn-add2 ms-2"
+        class="btn btn-primary c-pointer btn-add2 ms-2"
         @click="save"
       >
         <span

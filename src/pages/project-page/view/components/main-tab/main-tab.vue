@@ -1,16 +1,7 @@
 <template>
   <div>
-    <div v-if="storage.project?.stage == ProjectStage.Planning" class="d-flex align-items-center justify-content-between">
-      <div class="d-flex gap-3">
-        <button
-          v-show="storage.project"
-          @click="addTask()"
-          type="button"
-          class="btn btn-primary text-white c-pointer"
-        >
-          Добавить
-        </button>
-      </div>
+    <div class="mt-3">
+      <h3 class="text-white">План проекта</h3>
     </div>
     <div class="d-flex my-3 align-items-end gap-2">
       <div class="form-group">
@@ -28,8 +19,23 @@
         <button class="btn btn-primary" :disabled="!canStartProject" @click="startProject">Начать</button>
       </div>
     </div>
+    <div v-if="storage.project?.stage == ProjectStage.Planning" class="d-flex align-items-center justify-content-between">
+      <div class="d-flex gap-3">
+        <button
+          v-show="storage.project"
+          @click="addTask()"
+          type="button"
+          class="btn btn-primary text-white c-pointer"
+        >
+          Добавить
+        </button>
+      </div>
+    </div>
     <TasksTable />
-    <div class="mt-2" style="width: 200px">
+    <div class="mt-3">
+      <h3 class="text-white">Графики распределения ресурсов</h3>
+    </div>
+    <div class="mt-3" style="width: 200px">
       <div class="form-label">Вид ресурса</div>
       <select v-model="selectedResourceKindId" class="form-select">
         <option :value="null" :selected="selectedResourceKindId == null">
@@ -64,14 +70,11 @@
       <CorrectedResourceGraph :resourceKindId="selectedResourceKindId" />
     </div>
     <div class="mt-3">
+      <h3 class="text-white">Рекомендации</h3>
+    </div>
+    <div class="mt-3">
       <!-- Сам список -->
       <ul class="list-group">
-        <li class="list-group-item d-flex align-items-start">
-          <div class="me-3 text-primary fs-4"></div>
-          <div>
-            <h2 class="mb-1">Рекомендации</h2>
-          </div>
-        </li>
         <li
           v-if="tasks.filter((x) => x.isOptimizedResourceExceeded).length"
           class="list-group-item d-flex align-items-start"
